@@ -3,641 +3,1077 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agent Console | AgentPaySTX</title>
+  <title>x402 Stacks Agent Console</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%232ecc71'/></svg>">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'SF Mono', 'Fira Code', monospace;
       background: #0a0a0f;
-      color: #e0e0e0;
+      color: #fff;
+      font-size: 18px;
       min-height: 100vh;
     }
-    
     header {
       background: rgba(0,0,0,0.5);
       border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding: 1rem 2rem;
+      padding: 0.75rem 1.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .logo {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #2ecc71;
+    .logo { font-size: 1.6rem; font-weight: bold; color: #2ecc71; }
+    .logo span { color: #ccc; }
+    .header-right { display: flex; align-items: center; gap: 1.25rem; }
+    .connection-status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.95rem; color: #fff; }
+    .connection-dot { width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; transition: background 0.3s; }
+    .connection-dot.connected { background: #2ecc71; }
+    .connection-dot.checking { background: #f39c12; animation: blink 1s infinite; }
+    .network-select {
+      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px; padding: 0.4rem 0.6rem; color: #fff;
+      font-family: inherit; font-size: 0.95rem; cursor: pointer;
     }
-    .logo span { color: #888; }
-    .nav-links {
-      display: flex;
-      gap: 1.5rem;
+    .network-select:focus { outline: none; border-color: #2ecc71; }
+    .network-select option { background: #141420; color: #fff; }
+    .settings-btn {
+      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px; padding: 0.4rem 0.9rem; color: #ccc;
+      cursor: pointer; font-family: inherit; font-size: 1rem; transition: all 0.2s;
     }
-    .nav-links a {
-      color: #888;
-      text-decoration: none;
-      font-size: 0.9rem;
-    }
-    .nav-links a:hover { color: #fff; }
-    .nav-links a.active { color: #2ecc71; }
-    
+    .settings-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
     .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 2rem;
-      display: grid;
-      grid-template-columns: 350px 1fr 350px;
-      gap: 1.5rem;
-      min-height: calc(100vh - 60px);
+      max-width: 100%; margin: 0; padding: 1rem 1.5rem;
+      display: grid; grid-template-columns: minmax(300px, 1fr) 2fr minmax(300px, 1fr);
+      gap: 1.25rem; height: calc(100vh - 52px); overflow: hidden;
     }
-    
-    @media (max-width: 1200px) {
-      .container { grid-template-columns: 1fr; }
-    }
-    
+    @media (max-width: 1200px) { .container { grid-template-columns: 1fr; height: auto; overflow: auto; } }
     .panel {
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
-      overflow: hidden;
+      background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; min-height: 0;
     }
     .panel-header {
-      padding: 1rem;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      background: rgba(0,0,0,0.3);
-      font-weight: bold;
-      font-size: 0.9rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 0.75rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.3); font-weight: bold; font-size: 1.1rem;
+      display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
     }
-    .panel-body {
-      padding: 1rem;
+    .panel-body { padding: 0.75rem; overflow-y: auto; flex: 1; min-height: 0; }
+
+    /* Agent list in left panel */
+    .agent-list-item {
+      display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.7rem;
+      border-radius: 8px; cursor: pointer; transition: background 0.2s; border: 1px solid transparent;
+      margin-bottom: 0.35rem;
     }
-    
-    /* Left Panel - Agent Info */
-    .agent-card {
-      text-align: center;
-      padding: 1.5rem;
+    .agent-list-item:hover { background: rgba(46,204,113,0.08); }
+    .agent-list-item.active { background: rgba(46,204,113,0.15); border-color: #2ecc71; }
+    .agent-list-item .ava {
+      width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 1.15rem; flex-shrink: 0;
+      background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff;
     }
-    .agent-avatar {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, #2ecc71, #27ae60);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.5rem;
-      margin: 0 auto 1rem;
+    .agent-list-item .info { flex: 1; min-width: 0; }
+    .agent-list-item .info .name { font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .agent-list-item .info .wallet { font-size: 0.85rem; color: #aaa; }
+    .agent-list-item .edit-btn {
+      background: none; border: none; color: #888; cursor: pointer; font-size: 0.9rem; padding: 0.25rem;
     }
-    .agent-name {
-      font-size: 1.2rem;
-      margin-bottom: 0.25rem;
+    .agent-list-item .edit-btn:hover { color: #3498db; }
+    .add-agent-btn {
+      width: 100%; padding: 0.4rem; background: rgba(255,255,255,0.04);
+      border: 1px dashed rgba(255,255,255,0.15); border-radius: 6px;
+      color: #888; cursor: pointer; font-family: inherit; font-size: 1rem;
+      transition: all 0.2s; margin-top: 0.25rem;
     }
-    .agent-type {
-      color: #888;
-      font-size: 0.85rem;
-      margin-bottom: 1rem;
+    .add-agent-btn:hover { border-color: #2ecc71; color: #2ecc71; background: rgba(46,204,113,0.05); }
+
+    /* Task items */
+    .task-list { overflow-y: auto; }
+    .task-item {
+      background: rgba(0,0,0,0.2); border-radius: 6px; padding: 0.5rem 0.65rem;
+      margin-bottom: 0.3rem; cursor: pointer; transition: background 0.2s; border: 1px solid transparent;
     }
-    .wallet-info {
-      background: rgba(0,0,0,0.3);
-      border-radius: 8px;
-      padding: 1rem;
-      margin-bottom: 1rem;
-    }
-    .wallet-balance {
-      font-size: 1.5rem;
-      color: #2ecc71;
-      margin-bottom: 0.5rem;
-    }
-    .wallet-address {
-      font-size: 0.7rem;
-      color: #666;
-      word-break: break-all;
-    }
-    .network-badge {
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      background: rgba(46, 204, 113, 0.2);
-      color: #2ecc71;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      margin-top: 0.5rem;
-    }
-    
-    .discovered-services {
-      margin-top: 1rem;
-    }
-    .service-item {
-      background: rgba(0,0,0,0.2);
-      border-radius: 6px;
-      padding: 0.75rem;
-      margin-bottom: 0.5rem;
-      font-size: 0.8rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .service-item:hover {
-      background: rgba(46, 204, 113, 0.1);
-    }
-    .service-item.selected {
-      background: rgba(46, 204, 113, 0.2);
-      border: 1px solid #2ecc71;
-    }
-    .service-price {
-      color: #f39c12;
-      font-weight: bold;
-    }
-    
-    /* Center Panel - Console */
-    .console-panel {
-      display: flex;
-      flex-direction: column;
-    }
+    .task-item:hover { background: rgba(46,204,113,0.08); }
+    .task-item.selected { background: rgba(46,204,113,0.15); border-color: #2ecc71; }
+    .task-item-title { font-size: 1.02rem; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .task-item-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+    .task-badge { display: inline-block; padding: 0.2rem 0.45rem; border-radius: 3px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+    .task-badge.summary { background: rgba(52,152,219,0.2); color: #3498db; }
+    .task-badge.research { background: rgba(155,89,182,0.2); color: #9b59b6; }
+    .task-badge.analysis { background: rgba(241,196,15,0.2); color: #f1c40f; }
+    .task-badge.writing { background: rgba(46,204,113,0.2); color: #2ecc71; }
+    .task-badge.coding { background: rgba(231,76,60,0.2); color: #e74c3c; }
+    .task-badge.translation { background: rgba(26,188,156,0.2); color: #1abc9c; }
+    .task-badge.other { background: rgba(255,255,255,0.1); color: #ccc; }
+    .task-bounty { color: #f39c12; font-weight: bold; }
+    .task-bids { color: #ccc; }
+
+    /* Console */
+    .console-panel { display: flex; flex-direction: column; }
     .console-output {
-      flex: 1;
-      background: #0d0d0d;
-      border-radius: 8px;
-      padding: 1rem;
-      font-size: 0.85rem;
-      line-height: 1.6;
-      overflow-y: auto;
-      max-height: 500px;
-      min-height: 400px;
+      flex: 1; background: #0d0d0d; border-radius: 8px; padding: 0.75rem;
+      font-size: 1.02rem; line-height: 1.5; overflow-y: auto; max-height: 45vh; min-height: 200px;
     }
-    .console-line {
-      margin-bottom: 0.25rem;
-    }
+    .console-line { margin-bottom: 0.2rem; }
     .console-line.info { color: #3498db; }
     .console-line.success { color: #2ecc71; }
     .console-line.warning { color: #f39c12; }
     .console-line.error { color: #e74c3c; }
     .console-line.payment { color: #9b59b6; }
-    .console-line .timestamp {
-      color: #444;
-      margin-right: 0.5rem;
+    .console-line .timestamp { color: #777; margin-right: 0.5rem; }
+
+    .task-detail-area { margin-top: 0.75rem; }
+    .task-detail-card {
+      background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; padding: 0.75rem; margin-bottom: 0.6rem;
     }
-    
-    .task-input-area {
-      margin-top: 1rem;
-    }
-    .task-input-area label {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #888;
-      font-size: 0.85rem;
-    }
-    .task-input {
-      width: 100%;
-      background: rgba(0,0,0,0.5);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      padding: 1rem;
-      color: #fff;
-      font-family: inherit;
-      font-size: 0.9rem;
-      resize: none;
-    }
-    .task-input:focus {
-      outline: none;
-      border-color: #2ecc71;
-    }
-    .task-actions {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
-    }
+    .task-detail-card h3 { font-size: 1.15rem; margin-bottom: 0.3rem; }
+    .task-detail-card p { font-size: 1rem; color: #ddd; line-height: 1.4; margin-bottom: 0.4rem; }
+    .task-detail-meta { display: flex; gap: 1rem; font-size: 0.95rem; color: #ccc; }
+    .task-detail-meta span strong { color: #fff; }
+    .task-actions { display: flex; gap: 0.5rem; }
     .action-btn {
-      flex: 1;
-      padding: 0.75rem;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: opacity 0.2s;
+      flex: 1; padding: 0.6rem; border: none; border-radius: 6px; font-weight: bold;
+      cursor: pointer; font-size: 1.02rem; font-family: inherit; transition: opacity 0.2s;
     }
     .action-btn:hover { opacity: 0.9; }
     .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .action-btn.primary {
-      background: linear-gradient(135deg, #2ecc71, #27ae60);
-      color: #fff;
+    .action-btn.primary { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; }
+    .action-btn.secondary { background: rgba(255,255,255,0.1); color: #ddd; }
+    .action-btn.bid-btn { background: rgba(243,156,18,0.2); color: #f39c12; border: 1px solid rgba(243,156,18,0.3); }
+    .result-preview {
+      width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px; padding: 0.6rem; color: #fff; font-family: inherit;
+      font-size: 0.92rem; resize: vertical; margin-bottom: 0.4rem;
     }
-    .action-btn.secondary {
-      background: rgba(255,255,255,0.1);
-      color: #888;
+    .result-preview:focus { outline: none; border-color: #2ecc71; }
+    .no-task-prompt { text-align: center; color: #aaa; padding: 1.5rem 1rem; font-size: 1.1rem; }
+
+    /* Right Panel - History */
+    .stats-bar {
+      display: flex; justify-content: space-around; padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 0.4rem;
     }
-    
-    /* Right Panel - Transactions */
-    .tx-list {
-      max-height: 600px;
-      overflow-y: auto;
+    .stat-block { text-align: center; }
+    .stat-block .stat-num { font-size: 1.35rem; font-weight: bold; color: #2ecc71; }
+    .stat-block .stat-label { font-size: 0.85rem; color: #ccc; text-transform: uppercase; }
+    .history-list { overflow-y: auto; }
+    .history-item { background: rgba(0,0,0,0.2); border-radius: 6px; padding: 0.5rem 0.6rem; margin-bottom: 0.3rem; }
+    .history-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem; }
+    .history-item-title { font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px; }
+    .status-badge { padding: 0.2rem 0.45rem; border-radius: 3px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
+    .status-badge.completed { background: rgba(46,204,113,0.2); color: #2ecc71; }
+    .status-badge.submitted { background: rgba(52,152,219,0.2); color: #3498db; }
+    .status-badge.in-progress { background: rgba(243,156,18,0.2); color: #f39c12; }
+    .status-badge.failed { background: rgba(231,76,60,0.2); color: #e74c3c; }
+    .status-badge.accepted { background: rgba(155,89,182,0.2); color: #9b59b6; }
+    .history-item-meta { display: flex; justify-content: space-between; font-size: 0.9rem; color: #ccc; }
+    .history-bounty { color: #f39c12; }
+    .empty-state { text-align: center; color: #aaa; padding: 1.5rem; font-size: 1.02rem; }
+
+    /* Modal */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      z-index: 100; align-items: center; justify-content: center;
     }
-    .tx-item {
-      background: rgba(0,0,0,0.2);
-      border-radius: 8px;
-      padding: 0.75rem;
-      margin-bottom: 0.5rem;
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #141420; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;
+      width: 540px; max-height: 85vh; overflow-y: auto; padding: 1.25rem;
     }
-    .tx-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 0.5rem;
+    .modal h2 { font-size: 1.2rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+    .modal h2 .close-btn { background: none; border: none; color: #ccc; font-size: 1.3rem; cursor: pointer; }
+    .modal h2 .close-btn:hover { color: #fff; }
+    .modal-section { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .modal-section:last-child { border-bottom: none; }
+    .modal-section h3 { font-size: 1rem; color: #2ecc71; margin-bottom: 0.6rem; }
+    .form-row { margin-bottom: 0.5rem; }
+    .form-row label { display: block; font-size: 0.85rem; color: #ccc; margin-bottom: 0.2rem; }
+    .form-row input[type="text"], .form-row input[type="password"], .form-row select {
+      width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px; padding: 0.45rem 0.65rem; color: #fff; font-family: inherit; font-size: 0.92rem;
     }
-    .tx-status {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 0.85rem;
+    .form-row input:focus, .form-row select:focus { outline: none; border-color: #2ecc71; }
+    .form-row-inline { display: flex; gap: 0.5rem; align-items: flex-end; }
+    .form-row-inline .form-row { flex: 1; margin-bottom: 0; }
+    .form-row-inline button, .modal-sm-btn {
+      padding: 0.45rem 0.7rem; background: rgba(52,152,219,0.2); border: 1px solid rgba(52,152,219,0.3);
+      color: #3498db; border-radius: 6px; cursor: pointer; font-family: inherit; font-size: 0.9rem; white-space: nowrap;
     }
-    .tx-status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #2ecc71;
+    .form-row-inline button:hover, .modal-sm-btn:hover { background: rgba(52,152,219,0.35); }
+    .radio-group { display: flex; gap: 1rem; margin-bottom: 0.6rem; }
+    .radio-group label { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.95rem; color: #fff; }
+    .radio-group input[type="radio"] { accent-color: #2ecc71; }
+    .ai-panel { display: none; }
+    .ai-panel.active { display: block; }
+    .capability-checks { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .capability-checks label { display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem; color: #fff; cursor: pointer; }
+    .capability-checks input[type="checkbox"] { accent-color: #2ecc71; }
+    .modal-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+    .modal-actions button {
+      flex: 1; padding: 0.55rem; border-radius: 6px; border: none;
+      font-family: inherit; font-size: 0.95rem; font-weight: bold; cursor: pointer;
     }
-    .tx-status-dot.pending {
-      background: #f39c12;
-      animation: blink 1s infinite;
-    }
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
-    .tx-amount {
-      color: #f39c12;
-      font-weight: bold;
-    }
-    .tx-details {
-      font-size: 0.75rem;
-      color: #666;
-    }
-    .tx-details a {
-      color: #3498db;
-      text-decoration: none;
-    }
-    .tx-details a:hover { text-decoration: underline; }
-    .tx-endpoint {
-      font-size: 0.8rem;
-      color: #888;
-      margin-top: 0.25rem;
-    }
-    
-    .empty-state {
-      text-align: center;
-      color: #444;
-      padding: 2rem;
-      font-size: 0.9rem;
-    }
-    
-    /* Quick Actions */
-    .quick-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    .quick-btn {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 6px;
-      padding: 0.75rem;
-      color: #888;
-      cursor: pointer;
-      font-size: 0.8rem;
-      text-align: left;
-      transition: all 0.2s;
-    }
-    .quick-btn:hover {
-      background: rgba(46, 204, 113, 0.1);
-      border-color: #2ecc71;
-      color: #fff;
-    }
-    .quick-btn .icon {
-      margin-right: 0.5rem;
-    }
+    .modal-actions .save-btn { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; }
+    .modal-actions .cancel-btn { background: rgba(255,255,255,0.1); color: #ddd; }
+    .modal-actions .danger-btn { background: rgba(231,76,60,0.2); color: #e74c3c; }
+    .test-result { font-size: 0.85rem; margin-top: 0.25rem; min-height: 1em; }
+    .test-result.ok { color: #2ecc71; }
+    .test-result.fail { color: #e74c3c; }
+    .test-result.checking { color: #f39c12; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   </style>
 </head>
 <body>
   <header>
-    <div class="logo">~/agent <span>console</span></div>
-    <nav class="nav-links">
-      <a href="marketplace.html">Marketplace</a>
-      <a href="agent.html" class="active">Agent Console</a>
-      <a href="index.html">Demo</a>
-      <a href="https://github.com/timborn104/x402-agent-marketplace" target="_blank">GitHub</a>
-    </nav>
+    <div style="display:flex;align-items:center;gap:1.25rem;">
+      <div class="logo">~/agent <span>console</span></div>
+      <select id="network-selector" class="network-select" onchange="switchNetwork(this.value)">
+        <option value="stacks">Stacks (BTC)</option>
+        <option value="solana">Solana</option>
+        <option value="evm">EVM (Ethereum)</option>
+        <option value="base">Base</option>
+        <option value="polygon">Polygon</option>
+        <option value="arbitrum">Arbitrum</option>
+      </select>
+    </div>
+    <div class="header-right">
+      <div class="connection-status">
+        <div class="connection-dot" id="conn-dot"></div>
+        <span id="conn-label">Disconnected</span>
+      </div>
+      <button class="settings-btn" onclick="openAppSettings()">Settings</button>
+    </div>
   </header>
-  
+
   <div class="container">
-    <!-- Left Panel - Your Agent -->
+    <!-- Left Panel -->
     <div class="panel">
       <div class="panel-header">
-        <span>🤖 Your Agent</span>
-        <span style="color: #2ecc71; font-size: 0.8rem;">● Online</span>
+        <span>Agents</span>
+        <span id="agent-count" style="color:#888;font-size:0.8rem;">0</span>
       </div>
-      <div class="panel-body">
-        <div class="agent-card">
-          <div class="agent-avatar">🤖</div>
-          <div class="agent-name">External Agent</div>
-          <div class="agent-type">Autonomous Buyer Agent</div>
-          <div class="wallet-info">
-            <div class="wallet-balance" id="balance">500.00 STX</div>
-            <div class="wallet-address" id="address">ST2W4FEZHSEECBGX52SNBWNR9HC596QF34RHQER3R</div>
-            <div class="network-badge" id="network-badge">🧪 Testnet</div>
-          </div>
+      <div class="panel-body" style="padding:0.5rem 0.6rem;flex:none;">
+        <div id="agent-list"></div>
+        <button class="add-agent-btn" onclick="openAgentSettings(-1)">+ Add Agent</button>
+      </div>
+
+      <div class="panel-header">
+        <span>Open Tasks</span>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <label style="font-size:0.7rem;color:#888;display:flex;align-items:center;gap:0.3rem;cursor:pointer;">
+            <input type="checkbox" id="auto-refresh-toggle" style="accent-color:#2ecc71;" onchange="toggleAutoRefresh()"> Auto
+          </label>
+          <button onclick="fetchTasks()" style="background:none;border:none;color:#3498db;cursor:pointer;font-size:0.8rem;font-family:inherit;">Refresh</button>
         </div>
-        
-        <div class="panel-header" style="margin: 1rem -1rem; padding: 0.75rem 1rem;">
-          <span>📡 Discovered Services</span>
-          <button onclick="discoverServices()" style="background: none; border: none; color: #3498db; cursor: pointer; font-size: 0.8rem;">Refresh</button>
+      </div>
+      <div class="panel-body" style="padding-top:0.4rem;">
+        <div style="display:flex;gap:0.4rem;margin-bottom:0.4rem;">
+          <input type="text" id="task-search" placeholder="Search tasks..." oninput="renderTaskList()" style="flex:1;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:5px;padding:0.3rem 0.5rem;color:#fff;font-family:inherit;font-size:0.88rem;">
+          <select id="task-status-filter" onchange="fetchTasksWithStatus()" style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:5px;padding:0.3rem 0.4rem;color:#fff;font-family:inherit;font-size:0.82rem;">
+            <option value="open">Open</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="all">All</option>
+          </select>
         </div>
-        
-        <div class="discovered-services" id="services-list">
-          <div class="empty-state">Click "Discover" to find agents...</div>
+        <div class="task-list" id="task-list">
+          <div class="empty-state">Connect &amp; add an agent to begin.</div>
         </div>
-        
-        <div class="quick-actions">
-          <button class="quick-btn" onclick="setTask('nft')"><span class="icon">🖼️</span>NFT Intel</button>
-          <button class="quick-btn" onclick="setTask('stacking')"><span class="icon">📈</span>Stacking</button>
-          <button class="quick-btn" onclick="setTask('defi')"><span class="icon">🔄</span>DeFi</button>
-          <button class="quick-btn" onclick="setTask('bns')"><span class="icon">🆔</span>BNS</button>
-        </div>
+        <button class="add-agent-btn" style="margin-top:0.35rem;" onclick="openCreateTask()">+ Add Task</button>
       </div>
     </div>
-    
-    <!-- Center Panel - Console -->
+
+    <!-- Center Panel -->
     <div class="panel console-panel">
       <div class="panel-header">
-        <span>⚡ Agent Console</span>
-        <button onclick="clearConsole()" style="background: none; border: none; color: #888; cursor: pointer; font-size: 0.8rem;">Clear</button>
+        <span>Agent Console</span>
+        <button onclick="clearConsole()" style="background:none;border:none;color:#888;cursor:pointer;font-size:0.8rem;font-family:inherit;">Clear</button>
       </div>
-      <div class="panel-body" style="flex: 1; display: flex; flex-direction: column;">
+      <div class="panel-body" style="flex:1;display:flex;flex-direction:column;">
         <div class="console-output" id="console">
-          <div class="console-line info"><span class="timestamp">[00:00:00]</span>Agent initialized. Ready to connect to x402 marketplace.</div>
-          <div class="console-line"><span class="timestamp">[00:00:00]</span>Wallet loaded: ST2W4...ER3R</div>
-          <div class="console-line success"><span class="timestamp">[00:00:00]</span>Network: Stacks Testnet</div>
-          <div class="console-line"><span class="timestamp">[00:00:00]</span>Type a task or select a quick action to begin.</div>
+          <div class="console-line info"><span class="timestamp">[00:00:00]</span>Agent console ready. Add an agent to get started.</div>
         </div>
-        
-        <div class="task-input-area">
-          <label>What should your agent do?</label>
-          <textarea class="task-input" id="task-input" rows="3" placeholder="e.g., 'Check the floor price of Megapont collection and find undervalued NFTs'"></textarea>
-          <div class="task-actions">
-            <button class="action-btn secondary" onclick="discoverServices()">🔍 Discover</button>
-            <button class="action-btn secondary" onclick="suggestTask()" style="background: rgba(155, 89, 182, 0.2); color: #9b59b6;">💡 Suggest</button>
-            <button class="action-btn primary" id="execute-btn" onclick="executeTask()">⚡ Execute</button>
+        <div class="task-detail-area" id="task-detail-area">
+          <div class="no-task-prompt" id="no-task-prompt"></div>
+          <div id="task-detail-view" style="display:none;">
+            <div class="task-detail-card">
+              <h3 id="detail-title">Task Title</h3>
+              <p id="detail-description">Description</p>
+              <div class="task-detail-meta">
+                <span>Category: <strong id="detail-category">-</strong></span>
+                <span>Bounty: <strong id="detail-bounty" style="color:#f39c12;">-</strong></span>
+                <span>Bids: <strong id="detail-bids">-</strong></span>
+              </div>
+            </div>
+            <textarea class="result-preview" id="result-preview" rows="4" placeholder="AI-generated result will appear here..." style="display:none;"></textarea>
+            <div class="task-actions">
+              <button class="action-btn primary" id="execute-btn" onclick="acceptAndExecuteTask()">Accept &amp; Execute</button>
+              <button class="action-btn bid-btn" id="bid-btn" onclick="placeBidOnTask()">Place Bid</button>
+              <button class="action-btn secondary" id="submit-btn" onclick="submitResult()" style="display:none;">Submit Result</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    
-    <!-- Right Panel - Transactions -->
+
+    <!-- Right Panel -->
     <div class="panel">
       <div class="panel-header">
-        <span>📜 Transactions</span>
-        <span id="tx-count" style="color: #888; font-size: 0.8rem;">0 payments</span>
+        <span>Task History</span>
+        <span id="history-count" style="color:#888;font-size:0.8rem;">0 tasks</span>
       </div>
       <div class="panel-body">
-        <div class="tx-list" id="tx-list">
-          <div class="empty-state">No transactions yet.<br>Execute a task to see payments.</div>
+        <div class="stats-bar">
+          <div class="stat-block"><div class="stat-num" id="stat-completed">0</div><div class="stat-label">Completed</div></div>
+          <div class="stat-block"><div class="stat-num" id="stat-earned">0</div><div class="stat-label" id="stat-earned-label">STX Earned</div></div>
+          <div class="stat-block"><div class="stat-num" id="stat-rating">-</div><div class="stat-label">Avg Rating</div></div>
         </div>
+        <div class="history-list" id="history-list"><div class="empty-state">No task history yet.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Settings Modal -->
+  <div class="modal-overlay" id="app-settings-modal">
+    <div class="modal">
+      <h2>App Settings <button class="close-btn" onclick="closeAppSettings()">&times;</button></h2>
+      <div class="modal-section">
+        <h3>StacksTasker API</h3>
+        <div class="form-row-inline">
+          <div class="form-row"><label>API URL</label><input type="text" id="setting-api-url" value="http://localhost:3003"></div>
+          <button onclick="testConnection()">Test</button>
+        </div>
+        <div class="test-result" id="test-conn-result"></div>
+      </div>
+      <div class="modal-section">
+        <h3>Default Ollama</h3>
+        <div class="form-row"><label>Ollama URL</label><input type="text" id="setting-ollama-url" value="http://localhost:11434"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="cancel-btn" onclick="closeAppSettings()">Cancel</button>
+        <button class="save-btn" onclick="saveAppSettings()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Settings Modal -->
+  <div class="modal-overlay" id="agent-settings-modal">
+    <div class="modal">
+      <h2><span id="agent-modal-title">New Agent</span> <button class="close-btn" onclick="closeAgentSettings()">&times;</button></h2>
+
+      <div class="modal-section">
+        <h3>Identity</h3>
+        <div class="form-row"><label>Name</label><input type="text" id="ag-name" placeholder="My Agent"></div>
+        <div class="form-row">
+          <label>Wallet Address</label>
+          <div class="form-row-inline">
+            <div class="form-row"><input type="text" id="ag-wallet" placeholder="ST..."></div>
+            <button onclick="generateWallet()">Generate</button>
+          </div>
+        </div>
+        <div id="wallet-secret-area" style="display:none;margin-bottom:0.5rem;">
+          <div style="background:rgba(46,204,113,0.08);border:1px solid rgba(46,204,113,0.2);border-radius:6px;padding:0.5rem 0.65rem;font-size:0.85rem;color:#ccc;">
+            Private key saved to <strong style="color:#2ecc71;">localStorage</strong> <span style="color:#888;">(browser-only)</span>
+          </div>
+          <div class="test-result" id="wallet-gen-result"></div>
+        </div>
+        <div class="form-row"><label>Bio</label><input type="text" id="ag-bio" placeholder="Autonomous AI agent"></div>
+        <div class="form-row">
+          <label>Capabilities</label>
+          <div class="capability-checks" id="ag-caps">
+            <label><input type="checkbox" value="summarization" checked> Summarization</label>
+            <label><input type="checkbox" value="research" checked> Research</label>
+            <label><input type="checkbox" value="analysis" checked> Analysis</label>
+            <label><input type="checkbox" value="writing"> Writing</label>
+            <label><input type="checkbox" value="coding"> Coding</label>
+            <label><input type="checkbox" value="translation"> Translation</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <h3>AI Model</h3>
+        <div class="radio-group">
+          <label><input type="radio" name="ag-ai-mode" value="cloud" checked onchange="switchAIMode('cloud')"> Cloud API</label>
+          <label><input type="radio" name="ag-ai-mode" value="ollama" onchange="switchAIMode('ollama')"> Local Ollama</label>
+        </div>
+        <div class="ai-panel active" id="cloud-panel">
+          <div class="form-row"><label>Provider</label>
+            <select id="ag-provider" onchange="updateModelOptions()">
+              <option value="anthropic">Anthropic</option><option value="openai">OpenAI</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label style="display:flex;align-items:center;gap:0.5rem;">
+              <input type="checkbox" id="ag-use-env" style="accent-color:#2ecc71;" onchange="toggleEnvKey()"> Load API key from .env
+            </label>
+          </div>
+          <div id="env-key-display" style="display:none;margin-bottom:0.5rem;">
+            <div style="background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.25);border-radius:6px;padding:0.5rem 0.65rem;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:0.85rem;color:#ccc;">Secret: <strong id="env-key-name" style="color:#2ecc71;">--</strong></span>
+              <span id="env-key-status" style="font-size:0.82rem;color:#888;">not loaded</span>
+            </div>
+            <div class="test-result" id="env-load-result"></div>
+          </div>
+          <div id="manual-key-row" class="form-row"><label>API Key</label><input type="password" id="ag-cloud-key" placeholder="sk-..."></div>
+          <div class="form-row"><label>Model</label>
+            <select id="ag-cloud-model">
+              <option value="claude-3-5-haiku-20241022">claude-3-5-haiku (cheapest)</option>
+              <option value="claude-sonnet-4-5-20250929">claude-sonnet-4-5</option>
+            </select>
+          </div>
+        </div>
+        <div class="ai-panel" id="ollama-panel">
+          <div class="form-row-inline">
+            <div class="form-row"><label>Ollama URL</label><input type="text" id="ag-ollama-url" value="http://localhost:11434"></div>
+            <button onclick="detectOllamaModels()">Detect</button>
+          </div>
+          <div class="test-result" id="ollama-detect-result"></div>
+          <div class="form-row" style="margin-top:0.4rem;"><label>Model</label>
+            <select id="ag-ollama-model"><option value="">-- detect models first --</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="cancel-btn" onclick="closeAgentSettings()">Cancel</button>
+        <button class="danger-btn" id="ag-delete-btn" onclick="deleteAgent()" style="display:none;">Delete</button>
+        <button class="save-btn" onclick="saveAgent()">Save Agent</button>
+      </div>
+      <div style="margin-top:0.4rem;text-align:center;">
+        <button class="modal-sm-btn" onclick="registerAgentOnServer()" style="background:rgba(46,204,113,0.2);border-color:rgba(46,204,113,0.3);color:#2ecc71;">Register on Server</button>
+        <div class="test-result" id="register-result"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Task Modal -->
+  <div class="modal-overlay" id="create-task-modal">
+    <div class="modal">
+      <h2>Create Task <button class="close-btn" onclick="closeCreateTask()">&times;</button></h2>
+      <div class="modal-section">
+        <div class="form-row"><label>Title</label><input type="text" id="new-task-title" placeholder="Task title"></div>
+        <div class="form-row"><label>Description</label>
+          <textarea id="new-task-desc" placeholder="Describe what needs to be done..." style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.45rem 0.65rem;color:#fff;font-family:inherit;font-size:0.92rem;resize:vertical;min-height:80px;"></textarea>
+        </div>
+        <div style="display:flex;gap:0.5rem;">
+          <div class="form-row" style="flex:1;"><label>Category</label>
+            <select id="new-task-category" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.45rem 0.65rem;color:#fff;font-family:inherit;font-size:0.92rem;">
+              <option value="summary">Summary</option>
+              <option value="research">Research</option>
+              <option value="analysis">Analysis</option>
+              <option value="writing">Writing</option>
+              <option value="coding">Coding</option>
+              <option value="translation">Translation</option>
+              <option value="other" selected>Other</option>
+            </select>
+          </div>
+          <div class="form-row" style="flex:1;"><label>Bounty (STX)</label><input type="text" id="new-task-bounty" placeholder="0.010" value="0.010"></div>
+        </div>
+      </div>
+      <div class="test-result" id="create-task-result"></div>
+      <div class="modal-actions">
+        <button class="cancel-btn" onclick="closeCreateTask()">Cancel</button>
+        <button class="save-btn" onclick="submitCreateTask()">Create Task</button>
       </div>
     </div>
   </div>
 
   <script>
-    const API_URL = 'http://localhost:3000';
-    let balance = 500.00;
-    let transactions = [];
-    let discoveredAgents = [];
-    
-    // Mock endpoints from marketplace
-    const marketplaceEndpoints = [
-      { agent: 'Gamma NFT', endpoint: '/gamma/floor-price', price: 0.001, desc: 'Get collection floor' },
-      { agent: 'Gamma NFT', endpoint: '/gamma/rarity', price: 0.002, desc: 'Calculate rarity' },
-      { agent: 'BNS Agent', endpoint: '/bns/check', price: 0.0005, desc: 'Check name availability' },
-      { agent: 'BNS Agent', endpoint: '/bns/valuation', price: 0.002, desc: 'Estimate value' },
-      { agent: 'Stacking Agent', endpoint: '/stacking/pools', price: 0.001, desc: 'Compare pools' },
-      { agent: 'Stacking Agent', endpoint: '/stacking/rewards-calc', price: 0.001, desc: 'Calculate rewards' },
-      { agent: 'ALEX DEX', endpoint: '/alex/price', price: 0.001, desc: 'Token price' },
-      { agent: 'ALEX DEX', endpoint: '/alex/lp-yield', price: 0.002, desc: 'LP yields' },
-      { agent: 'Clarity Agent', endpoint: '/clarity/audit', price: 0.01, desc: 'Security audit' },
-      { agent: 'Arkadiko', endpoint: '/arkadiko/usda-rate', price: 0.001, desc: 'USDA rate' },
-    ];
-    
-    const tasks = {
-      nft: {
-        name: 'NFT Collection Analysis',
-        endpoints: ['/gamma/floor-price', '/gamma/rarity']
-      },
-      stacking: {
-        name: 'Stacking Optimization',
-        endpoints: ['/stacking/pools', '/stacking/rewards-calc']
-      },
-      defi: {
-        name: 'DeFi Yield Search',
-        endpoints: ['/alex/price', '/alex/lp-yield', '/arkadiko/usda-rate']
-      },
-      bns: {
-        name: 'BNS Name Research',
-        endpoints: ['/bns/check', '/bns/valuation']
-      }
+    // ── AppState ────────────────────────────────────────────────
+    const AppState = {
+      // App-wide
+      network: 'stacks',
+      apiUrl: 'http://localhost:3003',
+      ollamaUrl: 'http://localhost:11434',
+      connected: false,
+      // Multi-agent
+      agents: [],          // Array of agent objects
+      activeAgentIdx: -1,  // Index into agents[]
+      // Runtime (not persisted)
+      tasks: [],
+      selectedTask: null,
+      autoRefresh: false,
+      pollTimer: null,
+      executing: false,
     };
-    
+
+    function makeAgent(overrides = {}) {
+      return {
+        id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2),
+        name: '', wallet: '', bio: '', capabilities: ['summarization','research','analysis'],
+        aiMode: 'cloud', cloudProvider: 'anthropic', cloudKey: '', useEnvKey: false,
+        cloudModel: 'claude-3-5-haiku-20241022',
+        ollamaUrl: 'http://localhost:11434', ollamaModel: '',
+        serverId: null, profile: null,
+        taskHistory: [], consoleLogs: [],
+        ...overrides,
+      };
+    }
+    function A() { return AppState.agents[AppState.activeAgentIdx] || null; } // active agent shorthand
+
+    function loadState() {
+      try {
+        const s = localStorage.getItem('x402-app-state');
+        if (s) { const p = JSON.parse(s); Object.assign(AppState, { network: p.network, apiUrl: p.apiUrl, ollamaUrl: p.ollamaUrl }); }
+        const ag = localStorage.getItem('x402-agents');
+        if (ag) AppState.agents = JSON.parse(ag);
+        const idx = localStorage.getItem('x402-active-agent');
+        if (idx !== null) AppState.activeAgentIdx = parseInt(idx);
+        if (AppState.activeAgentIdx >= AppState.agents.length) AppState.activeAgentIdx = AppState.agents.length > 0 ? 0 : -1;
+        // Migrate old single-agent state
+        const old = localStorage.getItem('x402-agent-state');
+        if (old && AppState.agents.length === 0) {
+          const o = JSON.parse(old);
+          if (o.agentName || o.agentWallet) {
+            const hist = JSON.parse(localStorage.getItem('x402-agent-history') || '[]');
+            AppState.agents.push(makeAgent({
+              name: o.agentName, wallet: o.agentWallet, bio: o.agentBio,
+              capabilities: o.agentCapabilities || [], aiMode: o.aiMode || 'cloud',
+              cloudProvider: o.cloudProvider || 'anthropic', cloudKey: o.useEnvKey ? '' : (o.cloudKey || ''),
+              useEnvKey: o.useEnvKey || false, cloudModel: o.cloudModel || 'claude-3-5-haiku-20241022',
+              ollamaUrl: o.ollamaUrl || 'http://localhost:11434', ollamaModel: o.ollamaModel || '',
+              serverId: o.agentId, taskHistory: hist,
+            }));
+            AppState.activeAgentIdx = 0;
+            AppState.apiUrl = o.apiUrl || AppState.apiUrl;
+            AppState.network = o.network || AppState.network;
+            localStorage.removeItem('x402-agent-state');
+            localStorage.removeItem('x402-agent-history');
+            saveAll();
+          }
+        }
+      } catch(e) { /* ignore */ }
+    }
+    function saveAll() {
+      try {
+        localStorage.setItem('x402-app-state', JSON.stringify({ network: AppState.network, apiUrl: AppState.apiUrl, ollamaUrl: AppState.ollamaUrl }));
+        // Strip cloudKey for agents using .env
+        const safe = AppState.agents.map(a => ({ ...a, cloudKey: a.useEnvKey ? '' : a.cloudKey, profile: null }));
+        localStorage.setItem('x402-agents', JSON.stringify(safe));
+        localStorage.setItem('x402-active-agent', AppState.activeAgentIdx.toString());
+      } catch(e) { /* ignore */ }
+    }
+
+    // ── Utilities ───────────────────────────────────────────────
     function log(message, type = '') {
-      const console = document.getElementById('console');
+      const con = document.getElementById('console');
       const time = new Date().toLocaleTimeString('en-US', { hour12: false });
       const line = document.createElement('div');
       line.className = 'console-line ' + type;
-      line.innerHTML = `<span class="timestamp">[${time}]</span>${message}`;
-      console.appendChild(line);
-      console.scrollTop = console.scrollHeight;
+      line.innerHTML = `<span class="timestamp">[${time}]</span>${escapeHtml(message)}`;
+      con.appendChild(line);
+      con.scrollTop = con.scrollHeight;
+      // Save to active agent's console log
+      const a = A();
+      if (a) a.consoleLogs.push({ time, message, type });
     }
-    
-    function clearConsole() {
-      document.getElementById('console').innerHTML = '';
-      log('Console cleared.', 'info');
+    function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+    function clearConsole() { document.getElementById('console').innerHTML = ''; log('Console cleared.', 'info'); }
+    function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    // ── Network ────────────────────────────────────────────────
+    const NET = {
+      stacks:   { label:'Stacks (BTC)', currency:'STX',  ph:'ST2W4FEZHSEECBGX52SNBWNR9HC596QF34RHQER3R' },
+      solana:   { label:'Solana',       currency:'SOL',  ph:'7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU' },
+      evm:      { label:'EVM (Ethereum)',currency:'ETH',  ph:'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18' },
+      base:     { label:'Base',         currency:'ETH',  ph:'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18' },
+      polygon:  { label:'Polygon',      currency:'MATIC',ph:'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18' },
+      arbitrum: { label:'Arbitrum',     currency:'ETH',  ph:'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18' },
+    };
+    function getCurrency() { return (NET[AppState.network] || NET.stacks).currency; }
+    function switchNetwork(n) { AppState.network = n; saveAll(); renderHistory(); log(`Switched to ${(NET[n]||NET.stacks).label}`, 'info'); }
+
+    // ── API Client ─────────────────────────────────────────────
+    const API = {
+      _headers() {
+        const h = { 'Content-Type': 'application/json' };
+        const a = A();
+        if (a?.wallet) { h['X-Wallet-Address'] = a.wallet; h['X-Wallet-Timestamp'] = Date.now().toString(); h['X-Wallet-Signature'] = 'agent-console-sig'; }
+        return h;
+      },
+      async _fetch(path, opts = {}) {
+        const url = AppState.apiUrl.replace(/\/+$/, '') + path;
+        const res = await fetch(url, { headers: this._headers(), ...opts });
+        if (!res.ok) { const b = await res.text().catch(()=>''); throw new Error(`HTTP ${res.status}: ${b.slice(0,200)}`); }
+        return res.json();
+      },
+      health()            { return this._fetch('/health'); },
+      registerAgent(data) { return this._fetch('/agents/register', { method:'POST', body:JSON.stringify(data) }); },
+      getAgentProfile(id) { return this._fetch(`/agents/${encodeURIComponent(id)}/profile`); },
+      listTasks(status='open') { return this._fetch(`/tasks?status=${status}`); },
+      getTask(id)         { return this._fetch(`/tasks/${id}`); },
+      acceptTask(id)      { const a=A(); return this._fetch(`/tasks/${id}/accept`, { method:'POST', body:JSON.stringify({ agentId: a?.serverId||a?.wallet }) }); },
+      startTask(id)       { return this._fetch(`/tasks/${id}/start`, { method:'POST' }); },
+      submitResult(id, result) { const a=A(); return this._fetch(`/tasks/${id}/submit`, { method:'POST', body:JSON.stringify({ result, agentId: a?.serverId||a?.wallet }) }); },
+      placeBid(id, amount) { const a=A(); return this._fetch(`/tasks/${id}/bid`, { method:'POST', body:JSON.stringify({ amount, agentId: a?.serverId||a?.wallet }) }); },
+      createTask(data) { return this._fetch('/tasks', { method:'POST', body:JSON.stringify(data) }); },
+    };
+
+    // ── AI Engine ──────────────────────────────────────────────
+    const AIEngine = {
+      buildPrompt(task) {
+        const cat = (task.category||'').toLowerCase();
+        const prompts = {
+          summary:'You are a precise summarizer. Produce a clear, concise summary. Use bullet points where helpful.',
+          summarization:'You are a precise summarizer. Produce a clear, concise summary. Use bullet points where helpful.',
+          research:'You are a thorough researcher. Gather relevant facts and present findings organized.',
+          analysis:'You are an analytical expert. Break down the problem and provide insights with evidence.',
+          writing:'You are a skilled writer. Produce well-structured, engaging, accurate content.',
+          coding:'You are an expert programmer. Write clean, correct, well-commented code.',
+          translation:'You are a professional translator. Provide accurate, natural translations.',
+        };
+        const sys = prompts[cat] || 'You are a capable AI assistant. Complete the given task accurately.';
+        const user = `Task: ${task.title||'Untitled'}\n\nDescription: ${task.description||'No description.'}\n\nPlease complete this task.`;
+        return { system: sys, user };
+      },
+      async complete(task) {
+        const a = A(); if (!a) throw new Error('No active agent');
+        if (a.aiMode === 'ollama') return this._ollama(task, a);
+        return this._cloud(task, a);
+      },
+      async _cloud(task, a) {
+        const { system, user } = this.buildPrompt(task);
+        const key = a.cloudKey; if (!key) throw new Error('No API key. Edit agent settings.');
+        if (a.cloudProvider === 'anthropic') {
+          const r = await fetch('https://api.anthropic.com/v1/messages', {
+            method:'POST', headers:{ 'Content-Type':'application/json', 'x-api-key':key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+            body: JSON.stringify({ model:a.cloudModel, max_tokens:2048, system, messages:[{role:'user',content:user}] }),
+          });
+          if (!r.ok) { const e=await r.text().catch(()=>''); throw new Error(`Anthropic ${r.status}: ${e.slice(0,200)}`); }
+          const d = await r.json(); return d.content.map(b=>b.text).join('\n');
+        }
+        const r = await fetch('https://api.openai.com/v1/chat/completions', {
+          method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${key}` },
+          body: JSON.stringify({ model:a.cloudModel, max_tokens:2048, messages:[{role:'system',content:system},{role:'user',content:user}] }),
+        });
+        if (!r.ok) { const e=await r.text().catch(()=>''); throw new Error(`OpenAI ${r.status}: ${e.slice(0,200)}`); }
+        const d = await r.json(); return d.choices[0].message.content;
+      },
+      async _ollama(task, a) {
+        const { system, user } = this.buildPrompt(task);
+        const url = (a.ollamaUrl||AppState.ollamaUrl).replace(/\/+$/,'') + '/api/chat';
+        if (!a.ollamaModel) throw new Error('No Ollama model selected.');
+        const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ model:a.ollamaModel, stream:false, messages:[{role:'system',content:system},{role:'user',content:user}] }),
+        });
+        if (!r.ok) { const e=await r.text().catch(()=>''); throw new Error(`Ollama ${r.status}: ${e.slice(0,200)}`); }
+        const d = await r.json(); return d.message?.content||'';
+      },
+      async detectModels(url) {
+        const r = await fetch(url.replace(/\/+$/,'') + '/api/tags');
+        if (!r.ok) throw new Error(`Ollama ${r.status}`);
+        const d = await r.json(); return (d.models||[]).map(m=>m.name||m.model);
+      },
+    };
+
+    // ── App Settings ───────────────────────────────────────────
+    function openAppSettings() {
+      document.getElementById('setting-api-url').value = AppState.apiUrl;
+      document.getElementById('setting-ollama-url').value = AppState.ollamaUrl;
+      document.getElementById('test-conn-result').textContent = '';
+      document.getElementById('app-settings-modal').classList.add('open');
     }
-    
-    function updateBalance() {
-      document.getElementById('balance').textContent = balance.toFixed(2) + ' STX';
+    function closeAppSettings() { document.getElementById('app-settings-modal').classList.remove('open'); }
+    function saveAppSettings() {
+      AppState.apiUrl = document.getElementById('setting-api-url').value.trim() || 'http://localhost:3003';
+      AppState.ollamaUrl = document.getElementById('setting-ollama-url').value.trim() || 'http://localhost:11434';
+      saveAll(); closeAppSettings(); checkConnection(); log('App settings saved.', 'success');
     }
-    
-    function discoverServices() {
-      log('Discovering marketplace services...', 'info');
-      
-      setTimeout(() => {
-        log(`Found ${marketplaceEndpoints.length} endpoints from 5 agents`, 'success');
-        
-        const list = document.getElementById('services-list');
-        list.innerHTML = marketplaceEndpoints.slice(0, 6).map((s, i) => `
-          <div class="service-item" onclick="selectService(${i})">
-            <span>${s.endpoint}</span>
-            <span class="service-price">${s.price} STX</span>
-          </div>
-        `).join('');
-        
-        discoveredAgents = marketplaceEndpoints;
-        log('Services cached. Ready to execute tasks.', 'info');
-      }, 500);
+    async function testConnection() {
+      const el = document.getElementById('test-conn-result');
+      el.textContent = 'Checking...'; el.className = 'test-result checking';
+      try {
+        const r = await fetch(document.getElementById('setting-api-url').value.trim().replace(/\/+$/,'') + '/health');
+        if (r.ok) { const d=await r.json().catch(()=>({})); el.textContent='Connected! '+(d.status||''); el.className='test-result ok'; }
+        else { el.textContent=`HTTP ${r.status}`; el.className='test-result fail'; }
+      } catch(e) { el.textContent='Failed: '+e.message; el.className='test-result fail'; }
     }
-    
-    function selectService(index) {
-      document.querySelectorAll('.service-item').forEach(el => el.classList.remove('selected'));
-      document.querySelectorAll('.service-item')[index].classList.add('selected');
-      
-      const service = marketplaceEndpoints[index];
-      document.getElementById('task-input').value = `Call ${service.endpoint} from ${service.agent}`;
+
+    // ── Create Task ──────────────────────────────────────────────
+    function openCreateTask() {
+      document.getElementById('new-task-title').value = '';
+      document.getElementById('new-task-desc').value = '';
+      document.getElementById('new-task-category').value = 'other';
+      document.getElementById('new-task-bounty').value = '0.010';
+      document.getElementById('create-task-result').textContent = '';
+      document.getElementById('create-task-modal').classList.add('open');
     }
-    
-    function setTask(taskId) {
-      const task = tasks[taskId];
-      if (task) {
-        document.getElementById('task-input').value = task.name;
-        log(`Selected task: ${task.name}`, 'info');
+    function closeCreateTask() { document.getElementById('create-task-modal').classList.remove('open'); }
+    async function submitCreateTask() {
+      const el = document.getElementById('create-task-result');
+      const title = document.getElementById('new-task-title').value.trim();
+      const description = document.getElementById('new-task-desc').value.trim();
+      const category = document.getElementById('new-task-category').value;
+      const bounty = document.getElementById('new-task-bounty').value.trim();
+      const a = A();
+      if (!title) { el.textContent = 'Title is required.'; el.className = 'test-result fail'; return; }
+      if (!description) { el.textContent = 'Description is required.'; el.className = 'test-result fail'; return; }
+      if (!a?.wallet) { el.textContent = 'Select an agent with a wallet first.'; el.className = 'test-result fail'; return; }
+      el.textContent = 'Creating...'; el.className = 'test-result checking';
+      try {
+        await API.createTask({ title, description, category, bounty, posterAddress: a.wallet });
+        el.textContent = 'Task created!'; el.className = 'test-result ok';
+        log(`Task created: ${title}`, 'success');
+        setTimeout(() => { closeCreateTask(); fetchTasks(); }, 800);
+      } catch(e) {
+        el.textContent = 'Error: ' + e.message; el.className = 'test-result fail';
+        log('Failed to create task: ' + e.message, 'error');
       }
     }
-    
-    function suggestTask() {
-      const suggestions = [
-        "Find undervalued NFTs on Gamma with rarity score > 90 and floor price under 50 STX",
-        "Compare all stacking pools and calculate my potential BTC rewards for 10,000 STX",
-        "Check if 'satoshi.btc' is available and estimate its market value",
-        "Analyze ALEX LP yields and find the best STX pair for passive income",
-        "Audit my Clarity contract for security vulnerabilities and gas optimization",
-        "Monitor Arkadiko vault health and alert if collateral ratio drops below 150%",
-        "Find .btc names expiring this week that are worth more than 100 STX",
-        "Get real-time prices for STX, ALEX, and USDA then calculate arbitrage opportunities",
-        "Research trending Gamma collections and identify whale accumulation patterns",
-        "Calculate optimal stacking strategy: solo vs pool vs liquid stacking",
-        "Check DAO proposals on StackerDAO and summarize voting recommendations",
-        "Find NFT collections where floor is 20% below average sale price",
-        "Analyze my wallet's stacking history and project next cycle rewards",
-        "Compare USDA stability across Arkadiko vaults and find safest collateral type",
-      ];
-      
-      // Pick random suggestion
-      const suggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-      document.getElementById('task-input').value = suggestion;
-      
-      log('💡 Suggested task based on available endpoints:', 'info');
-      log(`"${suggestion}"`, 'success');
-      log('Click Execute to run this task.', 'info');
-    }
-    
-    async function executeTask() {
-      const taskInput = document.getElementById('task-input').value.trim();
-      if (!taskInput) {
-        log('No task specified. Enter a task or select a quick action.', 'warning');
-        return;
+
+    // ── Agent Settings ─────────────────────────────────────────
+    let editingAgentIdx = -1; // -1 = new agent
+    function openAgentSettings(idx) {
+      editingAgentIdx = idx;
+      const a = idx >= 0 ? AppState.agents[idx] : makeAgent();
+      document.getElementById('agent-modal-title').textContent = idx >= 0 ? 'Edit Agent' : 'New Agent';
+      document.getElementById('ag-delete-btn').style.display = idx >= 0 ? '' : 'none';
+      document.getElementById('ag-name').value = a.name;
+      document.getElementById('ag-wallet').value = a.wallet;
+      document.getElementById('ag-wallet').placeholder = (NET[AppState.network]||NET.stacks).ph;
+      document.getElementById('ag-bio').value = a.bio;
+      document.querySelectorAll('#ag-caps input').forEach(cb => { cb.checked = a.capabilities.includes(cb.value); });
+      document.querySelector(`input[name="ag-ai-mode"][value="${a.aiMode}"]`).checked = true;
+      switchAIMode(a.aiMode);
+      document.getElementById('ag-provider').value = a.cloudProvider;
+      updateModelOptions();
+      document.getElementById('ag-cloud-key').value = a.cloudKey;
+      document.getElementById('ag-use-env').checked = a.useEnvKey;
+      toggleEnvKey();
+      document.getElementById('ag-cloud-model').value = a.cloudModel;
+      document.getElementById('ag-ollama-url').value = a.ollamaUrl || AppState.ollamaUrl;
+      if (a.ollamaModel) {
+        const sel = document.getElementById('ag-ollama-model');
+        if (!Array.from(sel.options).some(o=>o.value===a.ollamaModel)) sel.innerHTML=`<option value="${a.ollamaModel}">${a.ollamaModel}</option>`;
+        sel.value = a.ollamaModel;
       }
-      
-      const btn = document.getElementById('execute-btn');
-      btn.disabled = true;
-      btn.textContent = '⏳ Running...';
-      
-      log(`Starting task: "${taskInput}"`, 'info');
-      log('Analyzing required endpoints...', 'info');
-      
-      await sleep(300);
-      
-      // Determine which endpoints to call based on task
-      let endpoints = [];
-      const taskLower = taskInput.toLowerCase();
-      
-      if (taskLower.includes('nft') || taskLower.includes('floor') || taskLower.includes('gamma') || taskLower.includes('collection')) {
-        endpoints = marketplaceEndpoints.filter(e => e.endpoint.includes('gamma'));
-      } else if (taskLower.includes('stack') || taskLower.includes('pool') || taskLower.includes('btc reward')) {
-        endpoints = marketplaceEndpoints.filter(e => e.endpoint.includes('stacking'));
-      } else if (taskLower.includes('defi') || taskLower.includes('yield') || taskLower.includes('alex') || taskLower.includes('lp')) {
-        endpoints = marketplaceEndpoints.filter(e => e.endpoint.includes('alex') || e.endpoint.includes('arkadiko'));
-      } else if (taskLower.includes('bns') || taskLower.includes('name') || taskLower.includes('.btc')) {
-        endpoints = marketplaceEndpoints.filter(e => e.endpoint.includes('bns'));
-      } else if (taskLower.includes('audit') || taskLower.includes('clarity') || taskLower.includes('contract')) {
-        endpoints = marketplaceEndpoints.filter(e => e.endpoint.includes('clarity'));
+      document.getElementById('wallet-secret-area').style.display = 'none';
+      document.getElementById('register-result').textContent = '';
+      document.getElementById('agent-settings-modal').classList.add('open');
+    }
+    function closeAgentSettings() { document.getElementById('agent-settings-modal').classList.remove('open'); }
+    function switchAIMode(m) {
+      document.getElementById('cloud-panel').classList.toggle('active', m==='cloud');
+      document.getElementById('ollama-panel').classList.toggle('active', m==='ollama');
+    }
+    function updateModelOptions() {
+      const p = document.getElementById('ag-provider').value;
+      const s = document.getElementById('ag-cloud-model');
+      if (document.getElementById('ag-use-env').checked) { document.getElementById('env-key-name').textContent = getEnvKeyName(); loadEnvKey(); }
+      s.innerHTML = p==='anthropic'
+        ? '<option value="claude-3-5-haiku-20241022">claude-3-5-haiku (cheapest)</option><option value="claude-sonnet-4-5-20250929">claude-sonnet-4-5</option>'
+        : '<option value="gpt-4o-mini">gpt-4o-mini (cheapest)</option><option value="gpt-4o">gpt-4o</option>';
+    }
+    function getEnvKeyName() { return document.getElementById('ag-provider').value==='anthropic'?'ANTHROPIC_API_KEY':'OPENAI_API_KEY'; }
+    function toggleEnvKey() {
+      const c = document.getElementById('ag-use-env').checked;
+      document.getElementById('env-key-display').style.display = c ? '' : 'none';
+      document.getElementById('manual-key-row').style.display = c ? 'none' : '';
+      if (c) { document.getElementById('env-key-name').textContent = getEnvKeyName(); loadEnvKey(); }
+    }
+    async function loadEnvKey() {
+      const nameEl=document.getElementById('env-key-name'), statusEl=document.getElementById('env-key-status'), resultEl=document.getElementById('env-load-result');
+      const varName = getEnvKeyName(); nameEl.textContent=varName; statusEl.textContent='loading...'; statusEl.style.color='#f39c12'; resultEl.textContent='';
+      try {
+        const res = await fetch('/.env'); if (!res.ok) throw new Error('HTTP '+res.status);
+        const text = await res.text(); let value='';
+        for (const line of text.split(/\r?\n/)) {
+          const t=line.trim(); if (!t||t.startsWith('#')) continue; const eq=t.indexOf('='); if (eq===-1) continue;
+          const k=t.slice(0,eq).trim(); let v=t.slice(eq+1).trim();
+          if ((v.startsWith('"')&&v.endsWith('"'))||(v.startsWith("'")&&v.endsWith("'"))) v=v.slice(1,-1);
+          if (k===varName) { value=v; break; }
+        }
+        if (!value) { statusEl.textContent='not found'; statusEl.style.color='#e74c3c'; resultEl.textContent=varName+' not in .env'; resultEl.className='test-result fail'; return; }
+        document.getElementById('ag-cloud-key').value = value;
+        statusEl.textContent=value.slice(0,7)+'...'+value.slice(-4); statusEl.style.color='#2ecc71';
+        resultEl.textContent='Loaded from .env'; resultEl.className='test-result ok';
+      } catch(e) { statusEl.textContent='error'; statusEl.style.color='#e74c3c'; resultEl.textContent=e.message; resultEl.className='test-result fail'; }
+    }
+    async function detectOllamaModels() {
+      const el=document.getElementById('ollama-detect-result'); el.textContent='Detecting...'; el.className='test-result checking';
+      try {
+        const models = await AIEngine.detectModels(document.getElementById('ag-ollama-url').value.trim());
+        if (!models.length) { el.textContent='No models found.'; el.className='test-result fail'; return; }
+        document.getElementById('ag-ollama-model').innerHTML = models.map(m=>`<option value="${m}">${m}</option>`).join('');
+        el.textContent=`Found ${models.length} model(s)`; el.className='test-result ok';
+      } catch(e) { el.textContent='Failed: '+e.message; el.className='test-result fail'; }
+    }
+    function saveAgent() {
+      const data = {
+        name: document.getElementById('ag-name').value.trim(),
+        wallet: document.getElementById('ag-wallet').value.trim(),
+        bio: document.getElementById('ag-bio').value.trim(),
+        capabilities: Array.from(document.querySelectorAll('#ag-caps input:checked')).map(c=>c.value),
+        aiMode: document.querySelector('input[name="ag-ai-mode"]:checked').value,
+        cloudProvider: document.getElementById('ag-provider').value,
+        useEnvKey: document.getElementById('ag-use-env').checked,
+        cloudKey: document.getElementById('ag-cloud-key').value.trim(),
+        cloudModel: document.getElementById('ag-cloud-model').value,
+        ollamaUrl: document.getElementById('ag-ollama-url').value.trim(),
+        ollamaModel: document.getElementById('ag-ollama-model').value,
+      };
+      if (!data.name) { log('Agent name is required.', 'error'); return; }
+      if (editingAgentIdx >= 0) {
+        Object.assign(AppState.agents[editingAgentIdx], data);
+        log(`Updated agent: ${data.name}`, 'success');
       } else {
-        endpoints = marketplaceEndpoints.slice(0, 3);
+        const agent = makeAgent(data);
+        AppState.agents.push(agent);
+        AppState.activeAgentIdx = AppState.agents.length - 1;
+        log(`Created agent: ${data.name}`, 'success');
       }
-      
-      log(`Identified ${endpoints.length} required endpoint(s)`, 'info');
-      
-      for (const endpoint of endpoints) {
-        await sleep(400);
-        log(`Calling ${endpoint.agent}: ${endpoint.endpoint}`, 'info');
-        
-        await sleep(200);
-        log(`Received HTTP 402 - Payment Required`, 'warning');
-        log(`Price: ${endpoint.price} STX → ${endpoint.agent}`, 'payment');
-        
-        await sleep(300);
-        log(`Signing STX transfer...`, 'info');
-        
-        await sleep(400);
-        const txId = generateTxId();
-        log(`Transaction broadcast: ${txId.slice(0, 16)}...`, 'success');
-        
-        // Add transaction
-        addTransaction(endpoint, txId);
-        
-        // Update balance
-        balance -= endpoint.price;
-        updateBalance();
-        
-        await sleep(200);
-        log(`✅ Response received from ${endpoint.agent}`, 'success');
+      saveAll(); closeAgentSettings(); renderAgentList(); switchToAgent(AppState.activeAgentIdx);
+    }
+    function deleteAgent() {
+      if (editingAgentIdx < 0) return;
+      const name = AppState.agents[editingAgentIdx].name;
+      if (!confirm(`Are you sure you want to delete "${name || 'Unnamed'}"? This cannot be undone.`)) return;
+      AppState.agents.splice(editingAgentIdx, 1);
+      if (AppState.activeAgentIdx >= AppState.agents.length) AppState.activeAgentIdx = AppState.agents.length - 1;
+      saveAll(); closeAgentSettings(); renderAgentList();
+      if (AppState.activeAgentIdx >= 0) switchToAgent(AppState.activeAgentIdx);
+      else { clearConsole(); renderHistory(); }
+      log(`Deleted agent: ${name}`, 'warning');
+    }
+    async function registerAgentOnServer() {
+      const el=document.getElementById('register-result'); el.textContent='Registering...'; el.className='test-result checking';
+      const name=document.getElementById('ag-name').value.trim(), wallet=document.getElementById('ag-wallet').value.trim();
+      if (!name||!wallet) { el.textContent='Name and wallet required.'; el.className='test-result fail'; return; }
+      try {
+        const r = await API.registerAgent({ name, walletAddress:wallet, bio:document.getElementById('ag-bio').value.trim(),
+          capabilities:Array.from(document.querySelectorAll('#ag-caps input:checked')).map(c=>c.value) });
+        const sid = r.agentId||r.id||wallet;
+        if (editingAgentIdx >= 0) AppState.agents[editingAgentIdx].serverId = sid;
+        el.textContent='Registered! ID: '+sid; el.className='test-result ok';
+        log(`Agent registered on server: ${name}`, 'success');
+        saveAll();
+      } catch(e) { el.textContent='Error: '+e.message; el.className='test-result fail'; }
+    }
+
+    // ── Agent List Rendering ───────────────────────────────────
+    function renderAgentList() {
+      const el = document.getElementById('agent-list');
+      document.getElementById('agent-count').textContent = AppState.agents.length;
+      if (AppState.agents.length === 0) { el.innerHTML = '<div class="empty-state" style="padding:0.75rem;">No agents yet.</div>'; return; }
+      el.innerHTML = AppState.agents.map((a, i) => {
+        const active = i === AppState.activeAgentIdx ? ' active' : '';
+        const w = a.wallet ? (a.wallet.length > 14 ? a.wallet.slice(0,6)+'...'+a.wallet.slice(-4) : a.wallet) : 'no wallet';
+        return `<div class="agent-list-item${active}" onclick="switchToAgent(${i})">
+          <div class="ava">${(a.name||'A')[0].toUpperCase()}</div>
+          <div class="info"><div class="name">${escapeHtml(a.name||'Unnamed')}</div><div class="wallet">${w}</div></div>
+          <button class="edit-btn" onclick="event.stopPropagation();openAgentSettings(${i})">Settings</button>
+        </div>`;
+      }).join('');
+    }
+
+    function switchToAgent(idx) {
+      if (idx < 0 || idx >= AppState.agents.length) return;
+      // Save current console to outgoing agent
+      AppState.activeAgentIdx = idx;
+      saveAll();
+      renderAgentList();
+      // Restore console for this agent
+      const a = A();
+      document.getElementById('console').innerHTML = '';
+      if (a.consoleLogs.length) {
+        a.consoleLogs.forEach(l => {
+          const line = document.createElement('div');
+          line.className = 'console-line ' + l.type;
+          line.innerHTML = `<span class="timestamp">[${l.time}]</span>${escapeHtml(l.message)}`;
+          document.getElementById('console').appendChild(line);
+        });
+        document.getElementById('console').scrollTop = document.getElementById('console').scrollHeight;
+      } else {
+        log(`Switched to agent: ${a.name}`, 'info');
       }
-      
-      await sleep(300);
-      log('', '');
-      log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '');
-      log(`✅ Task complete! Made ${endpoints.length} payments.`, 'success');
-      log(`Total spent: ${endpoints.reduce((a, e) => a + e.price, 0).toFixed(4)} STX`, 'payment');
-      log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '');
-      
-      btn.disabled = false;
-      btn.textContent = '⚡ Execute Task';
+      // Restore history
+      renderHistory();
+      // Clear task selection
+      AppState.selectedTask = null;
+      renderTaskDetail();
+      // Fetch tasks
+      if (AppState.connected) fetchTasks();
     }
-    
-    function generateTxId() {
-      return [...Array(64)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+
+    // ── Connection ─────────────────────────────────────────────
+    async function checkConnection() {
+      const dot=document.getElementById('conn-dot'), label=document.getElementById('conn-label');
+      dot.className='connection-dot checking'; label.textContent='Checking...';
+      try {
+        await API.health(); dot.className='connection-dot connected';
+        label.textContent=AppState.apiUrl.replace(/^https?:\/\//,''); AppState.connected=true;
+      } catch(e) { dot.className='connection-dot'; label.textContent='Disconnected'; AppState.connected=false; }
     }
-    
-    function addTransaction(endpoint, txId) {
-      transactions.unshift({ endpoint, txId, time: new Date() });
-      
-      const list = document.getElementById('tx-list');
-      const count = document.getElementById('tx-count');
-      
-      count.textContent = `${transactions.length} payment${transactions.length !== 1 ? 's' : ''}`;
-      
-      list.innerHTML = transactions.map(tx => `
-        <div class="tx-item">
-          <div class="tx-header">
-            <div class="tx-status">
-              <div class="tx-status-dot"></div>
-              <span>Confirmed</span>
-            </div>
-            <div class="tx-amount">-${tx.endpoint.price} STX</div>
-          </div>
-          <div class="tx-endpoint">→ ${tx.endpoint.agent}: ${tx.endpoint.endpoint}</div>
-          <div class="tx-details">
-            <a href="https://explorer.stacks.co/txid/${tx.txId}?chain=testnet" target="_blank">
-              ${tx.txId.slice(0, 20)}...
-            </a>
-          </div>
-        </div>
-      `).join('');
+
+    // ── Task List ──────────────────────────────────────────────
+    async function fetchTasks() {
+      if (!AppState.connected) { log('Not connected.', 'warning'); return; }
+      try {
+        const d = await API.listTasks('open');
+        AppState.tasks = Array.isArray(d)?d:(d.tasks||[]);
+        log(`Fetched ${AppState.tasks.length} open task(s).`, 'info'); renderTaskList();
+      } catch(e) { log('Fetch tasks failed: '+e.message, 'error'); }
     }
-    
-    function sleep(ms) {
-      return new Promise(r => setTimeout(r, ms));
+    async function fetchTasksWithStatus() {
+      const status = document.getElementById('task-status-filter').value;
+      if (!AppState.connected) { log('Not connected.', 'warning'); return; }
+      try {
+        const d = await API.listTasks(status==='all'?'':status);
+        AppState.tasks = Array.isArray(d)?d:(d.tasks||[]); log(`Fetched ${AppState.tasks.length} task(s) [${status}].`, 'info'); renderTaskList();
+      } catch(e) { log('Fetch failed: '+e.message, 'error'); }
     }
-    
-    // Initialize
-    setTimeout(discoverServices, 1000);
+    function renderTaskList() {
+      const list = document.getElementById('task-list');
+      let tasks = AppState.tasks;
+      const q = (document.getElementById('task-search')?.value||'').toLowerCase().trim();
+      if (q) tasks = tasks.filter(t=> (t.title||'').toLowerCase().includes(q)||(t.description||'').toLowerCase().includes(q)||(t.category||'').toLowerCase().includes(q));
+      if (!tasks.length) { list.innerHTML='<div class="empty-state">No tasks found.</div>'; return; }
+      list.innerHTML = tasks.map(t => {
+        const cat=(t.category||'other').toLowerCase(), sel=AppState.selectedTask&&AppState.selectedTask.id===t.id?' selected':'';
+        return `<div class="task-item${sel}" onclick="selectTask('${t.id}')">
+          <div class="task-item-title">${escapeHtml(t.title||'Untitled')}</div>
+          <div class="task-item-meta"><span class="task-badge ${cat}">${cat}</span><span class="task-bounty">${t.bounty??t.reward??'?'} ${getCurrency()}</span><span class="task-bids">${t.bidCount??t.bids?.length??0} bids</span></div>
+        </div>`;
+      }).join('');
+    }
+    async function selectTask(id) {
+      const task = AppState.tasks.find(t=>t.id===id||t.id===Number(id)); if (!task) return;
+      try { AppState.selectedTask = await API.getTask(id); } catch(e) { AppState.selectedTask = task; }
+      renderTaskList(); renderTaskDetail(); log(`Selected: ${AppState.selectedTask.title}`, 'info');
+    }
+    function renderTaskDetail() {
+      const t=AppState.selectedTask, p=document.getElementById('no-task-prompt'), v=document.getElementById('task-detail-view');
+      if (!t) { p.style.display=''; v.style.display='none'; return; }
+      p.style.display='none'; v.style.display='';
+      document.getElementById('detail-title').textContent=t.title||'Untitled';
+      document.getElementById('detail-description').textContent=t.description||'No description.';
+      document.getElementById('detail-category').textContent=t.category||'-';
+      document.getElementById('detail-bounty').textContent=(t.bounty??t.reward??'?')+' '+getCurrency();
+      document.getElementById('detail-bids').textContent=t.bidCount??t.bids?.length??0;
+      document.getElementById('result-preview').style.display='none'; document.getElementById('result-preview').value='';
+      document.getElementById('execute-btn').style.display=''; document.getElementById('bid-btn').style.display='';
+      document.getElementById('submit-btn').style.display='none';
+      document.getElementById('execute-btn').disabled=false; document.getElementById('execute-btn').textContent='Accept & Execute';
+    }
+    function toggleAutoRefresh() {
+      AppState.autoRefresh = document.getElementById('auto-refresh-toggle').checked;
+      if (AppState.autoRefresh) { if (AppState.pollTimer) clearInterval(AppState.pollTimer); AppState.pollTimer=setInterval(()=>fetchTasks(),10000); }
+      else { if (AppState.pollTimer) clearInterval(AppState.pollTimer); AppState.pollTimer=null; }
+    }
+
+    // ── Core Workflow ──────────────────────────────────────────
+    async function acceptAndExecuteTask() {
+      const task=AppState.selectedTask, a=A(); if (!task||!a) return; if (AppState.executing) return;
+      AppState.executing=true;
+      const eb=document.getElementById('execute-btn'), bb=document.getElementById('bid-btn'), pv=document.getElementById('result-preview'), sb=document.getElementById('submit-btn');
+      eb.disabled=true; eb.textContent='Running...'; bb.style.display='none';
+      const hist = { taskId:task.id, title:task.title, category:task.category, bounty:task.bounty??task.reward, status:'accepted', timestamp:new Date().toISOString() };
+      try {
+        log('Accepting task...','info');
+        try { await API.acceptTask(task.id); log('Accepted.','success'); } catch(e) { log('Accept: '+e.message+' (continuing)','warning'); }
+        hist.status='in-progress';
+        log('Starting...','info');
+        try { await API.startTask(task.id); log('Started.','success'); } catch(e) { log('Start: '+e.message+' (continuing)','warning'); }
+        const aiLabel = a.aiMode==='cloud'?a.cloudProvider+'/'+a.cloudModel:'Ollama/'+a.ollamaModel;
+        log(`Generating with ${aiLabel}...`,'info');
+        const result = await AIEngine.complete(task);
+        log('AI done ('+result.length+' chars).','success');
+        pv.style.display=''; pv.value=result; sb.style.display=''; eb.style.display='none'; hist.status='submitted';
+        log('Submitting...','info');
+        try { await API.submitResult(task.id, result); log('Submitted!','success'); hist.status='completed'; }
+        catch(e) { log('Submit: '+e.message,'warning'); log('Use Submit Result button to retry.','info'); sb.style.display=''; }
+      } catch(e) { log('Failed: '+e.message,'error'); hist.status='failed'; }
+      a.taskHistory.unshift(hist); saveAll(); renderHistory();
+      AppState.executing=false; eb.disabled=false; eb.textContent='Accept & Execute';
+      setTimeout(()=>fetchTasks(),1500);
+    }
+    async function submitResult() {
+      const task=AppState.selectedTask, pv=document.getElementById('result-preview'), a=A();
+      if (!task||!pv.value.trim()||!a) return;
+      log('Submitting...','info');
+      try { await API.submitResult(task.id,pv.value.trim()); log('Submitted!','success');
+        const h=a.taskHistory.find(e=>e.taskId===task.id); if(h) h.status='completed'; saveAll(); renderHistory();
+      } catch(e) { log('Submit failed: '+e.message,'error'); }
+    }
+    async function placeBidOnTask() {
+      const task=AppState.selectedTask; if (!task) return;
+      const amount = prompt('Bid amount ('+getCurrency()+'):'); if (!amount||isNaN(Number(amount))) return;
+      log(`Bidding ${amount} ${getCurrency()}...`,'info');
+      try { await API.placeBid(task.id,Number(amount)); log('Bid placed!','success'); } catch(e) { log('Bid failed: '+e.message,'error'); }
+    }
+
+    // ── History ────────────────────────────────────────────────
+    function renderHistory() {
+      const list=document.getElementById('history-list'), countEl=document.getElementById('history-count');
+      const a=A(), hist=a?a.taskHistory:[];
+      countEl.textContent=hist.length+' task'+(hist.length!==1?'s':'');
+      const completed=hist.filter(h=>h.status==='completed').length;
+      const earned=hist.filter(h=>h.status==='completed').reduce((s,h)=>s+(Number(h.bounty)||0),0);
+      const cur=getCurrency();
+      document.getElementById('stat-earned-label').textContent=cur+' Earned';
+      document.getElementById('stat-completed').textContent=completed;
+      document.getElementById('stat-earned').textContent=earned;
+      document.getElementById('stat-rating').textContent=a?.profile?.averageRating?a.profile.averageRating.toFixed(1):'-';
+      if (!hist.length) { list.innerHTML='<div class="empty-state">No task history yet.</div>'; return; }
+      list.innerHTML = hist.map(h => {
+        const sc=(h.status||'completed').replace(/\s/g,'-'), time=h.timestamp?new Date(h.timestamp).toLocaleString():'';
+        return `<div class="history-item"><div class="history-item-header"><span class="history-item-title">${escapeHtml(h.title||'Task')}</span><span class="status-badge ${sc}">${h.status||'-'}</span></div><div class="history-item-meta"><span class="history-bounty">${h.bounty??'?'} ${cur}</span><span>${time}</span></div></div>`;
+      }).join('');
+    }
+
+    // ── Wallet Generation ──────────────────────────────────────
+    const B58='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    function bytesToHex(b){return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('')}
+    function base58Encode(bytes){const d=[0];for(const byte of bytes){let c=byte;for(let j=0;j<d.length;j++){c+=d[j]<<8;d[j]=c%58;c=(c/58)|0}while(c){d.push(c%58);c=(c/58)|0}}let s='';for(let i=0;i<bytes.length&&bytes[i]===0;i++)s+=B58[0];for(let i=d.length-1;i>=0;i--)s+=B58[d[i]];return s}
+    async function sha256(d){return new Uint8Array(await crypto.subtle.digest('SHA-256',d))}
+    async function generateWallet() {
+      const net=AppState.network, pk=new Uint8Array(32); crypto.getRandomValues(pk);
+      let addr='';
+      if (net==='stacks') { const h1=await sha256(pk),h2=await sha256(h1),p=new Uint8Array(21);p[0]=26;p.set(h2.slice(0,20),1);const c1=await sha256(p),c2=await sha256(c1),f=new Uint8Array(25);f.set(p);f.set(c2.slice(0,4),21);addr='ST'+base58Encode(f.slice(1)); }
+      else if (net==='solana') { addr=base58Encode(await sha256(pk)); }
+      else { addr='0x'+bytesToHex((await sha256(pk)).slice(0,20)); }
+      const wid = editingAgentIdx>=0 ? AppState.agents[editingAgentIdx].id : 'new';
+      localStorage.setItem('x402-wallet-'+wid, JSON.stringify({network:net,address:addr,privateKey:bytesToHex(pk),created:new Date().toISOString()}));
+      document.getElementById('ag-wallet').value=addr;
+      document.getElementById('wallet-secret-area').style.display='';
+      const res=document.getElementById('wallet-gen-result');
+      res.textContent=`Generated ${(NET[net]||NET.stacks).label} wallet. Key saved ${new Date().toLocaleTimeString()}.`;
+      res.className='test-result ok';
+      log(`Generated wallet: ${addr.slice(0,12)}...`,'success');
+    }
+
+    // ── .env reload on startup ─────────────────────────────────
+    async function reloadEnvKeys() {
+      try {
+        const res = await fetch('/.env'); if (!res.ok) return;
+        const text = await res.text(); const vars = {};
+        for (const line of text.split(/\r?\n/)) {
+          const t=line.trim(); if (!t||t.startsWith('#')) continue; const eq=t.indexOf('='); if (eq===-1) continue;
+          const k=t.slice(0,eq).trim(); let v=t.slice(eq+1).trim();
+          if ((v.startsWith('"')&&v.endsWith('"'))||(v.startsWith("'")&&v.endsWith("'"))) v=v.slice(1,-1);
+          vars[k]=v;
+        }
+        AppState.agents.forEach(a => {
+          if (!a.useEnvKey) return;
+          const varName = a.cloudProvider==='anthropic'?'ANTHROPIC_API_KEY':'OPENAI_API_KEY';
+          if (vars[varName]) a.cloudKey = vars[varName];
+        });
+      } catch(e) { /* silent */ }
+    }
+
+    // ── Init ───────────────────────────────────────────────────
+    loadState();
+    document.getElementById('network-selector').value = AppState.network||'stacks';
+    reloadEnvKeys();
+    checkConnection();
+    renderAgentList();
+    if (AppState.activeAgentIdx >= 0) switchToAgent(AppState.activeAgentIdx);
+    else renderHistory();
+    document.getElementById('auto-refresh-toggle').checked = AppState.autoRefresh;
+    if (AppState.autoRefresh) toggleAutoRefresh();
+    setTimeout(()=>{ if (AppState.connected && A()) fetchTasks(); }, 1200);
   </script>
 </body>
 </html>

@@ -1,18 +1,14 @@
-# Agent Console
+# x402 Stacks Agent Console
 
-A sleek, terminal-style dashboard for autonomous AI agents. Built for the x402 protocol.
+A sleek, terminal-style dashboard for autonomous AI agents. Built for the x402 protocol on Stacks.
 
 ## Features
 
-- 🤖 Agent status monitoring
-- 📡 Service discovery
-- ⚡ Real-time console logging
-- 💰 Transaction history
-- 🔗 Stacks wallet integration (testnet)
-
-## Demo
-
-[Live Demo](https://timborn104.github.io/agent-console/)
+- Agent status monitoring
+- Service discovery
+- Real-time console logging
+- Transaction history
+- Stacks wallet integration (testnet)
 
 ## Usage
 
