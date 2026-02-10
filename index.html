@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Console | AgentPaySTX</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      background: #0a0a0f;
+      color: #e0e0e0;
+      min-height: 100vh;
+    }
+    
+    header {
+      background: rgba(0,0,0,0.5);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #2ecc71;
+    }
+    .logo span { color: #888; }
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+    }
+    .nav-links a {
+      color: #888;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .nav-links a:hover { color: #fff; }
+    .nav-links a.active { color: #2ecc71; }
+    
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 350px 1fr 350px;
+      gap: 1.5rem;
+      min-height: calc(100vh - 60px);
+    }
+    
+    @media (max-width: 1200px) {
+      .container { grid-template-columns: 1fr; }
+    }
+    
+    .panel {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .panel-header {
+      padding: 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      background: rgba(0,0,0,0.3);
+      font-weight: bold;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .panel-body {
+      padding: 1rem;
+    }
+    
+    /* Left Panel - Agent Info */
+    .agent-card {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .agent-avatar {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      margin: 0 auto 1rem;
+    }
+    .agent-name {
+      font-size: 1.2rem;
+      margin-bottom: 0.25rem;
+    }
+    .agent-type {
+      color: #888;
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    .wallet-info {
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .wallet-balance {
+      font-size: 1.5rem;
+      color: #2ecc71;
+      margin-bottom: 0.5rem;
+    }
+    .wallet-address {
+      font-size: 0.7rem;
+      color: #666;
+      word-break: break-all;
+    }
+    .network-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      background: rgba(46, 204, 113, 0.2);
+      color: #2ecc71;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    
+    .discovered-services {
+      margin-top: 1rem;
+    }
+    .service-item {
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .service-item:hover {
+      background: rgba(46, 204, 113, 0.1);
+    }
+    .service-item.selected {
+      background: rgba(46, 204, 113, 0.2);
+      border: 1px solid #2ecc71;
+    }
+    .service-price {
+      color: #f39c12;
+      font-weight: bold;
+    }
+    
+    /* Center Panel - Console */
+    .console-panel {
+      display: flex;
+      flex-direction: column;
+    }
+    .console-output {
+      flex: 1;
+      background: #0d0d0d;
+      border-radius: 8px;
+      padding: 1rem;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      overflow-y: auto;
+      max-height: 500px;
+      min-height: 400px;
+    }
+    .console-line {
+      margin-bottom: 0.25rem;
+    }
+    .console-line.info { color: #3498db; }
+    .console-line.success { color: #2ecc71; }
+    .console-line.warning { color: #f39c12; }
+    .console-line.error { color: #e74c3c; }
+    .console-line.payment { color: #9b59b6; }
+    .console-line .timestamp {
+      color: #444;
+      margin-right: 0.5rem;
+    }
+    
+    .task-input-area {
+      margin-top: 1rem;
+    }
+    .task-input-area label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #888;
+      font-size: 0.85rem;
+    }
+    .task-input {
+      width: 100%;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 1rem;
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: none;
+    }
+    .task-input:focus {
+      outline: none;
+      border-color: #2ecc71;
+    }
+    .task-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .action-btn {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: opacity 0.2s;
+    }
+    .action-btn:hover { opacity: 0.9; }
+    .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .action-btn.primary {
+      background: linear-gradient(135deg, #2ecc71, #27ae60);
+      color: #fff;
+    }
+    .action-btn.secondary {
+      background: rgba(255,255,255,0.1);
+      color: #888;
+    }
+    
+    /* Right Panel - Transactions */
+    .tx-list {
+      max-height: 600px;
+      overflow-y: auto;
+    }
+    .tx-item {
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+    .tx-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .tx-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+    }
+    .tx-status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2ecc71;
+    }
+    .tx-status-dot.pending {
+      background: #f39c12;
+      animation: blink 1s infinite;
+    }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+    .tx-amount {
+      color: #f39c12;
+      font-weight: bold;
+    }
+    .tx-details {
+      font-size: 0.75rem;
+      color: #666;
+    }
+    .tx-details a {
+      color: #3498db;
+      text-decoration: none;
+    }
+    .tx-details a:hover { text-decoration: underline; }
+    .tx-endpoint {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 0.25rem;
+    }
+    
+    .empty-state {
+      text-align: center;
+      color: #444;
+      padding: 2rem;
+      font-size: 0.9rem;
+    }
+    
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .quick-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      padding: 0.75rem;
+      color: #888;
+      cursor: pointer;
+      font-size: 0.8rem;
+      text-align: left;
+      transition: all 0.2s;
+    }
+    .quick-btn:hover {
+      background: rgba(46, 204, 113, 0.1);
+      border-color: #2ecc71;
+      color: #fff;
+    }
+    .quick-btn .icon {
+      margin-right: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">~/agent <span>console</span></div>
+    <nav class="nav-links">
+      <a href="marketplace.html">Marketplace</a>
+      <a href="agent.html" class="active">Agent Console</a>
+      <a href="index.html">Demo</a>
+      <a href="https://github.com/timborn104/x402-agent-marketplace" target="_blank">GitHub</a>
+    </nav>
+  </header>
+  
+  <div class="container">
+    <!-- Left Panel - Your Agent -->
+    <div class="panel">
+      <div class="panel-header">
+        <span>🤖 Your Agent</span>
+        <span style="color: #2ecc71; font-size: 0.8rem;">● Online</span>
+      </div>
+      <div class="panel-body">
+        <div class="agent-card">
+          <div class="agent-avatar">🤖</div>
+          <div class="agent-name">External Agent</div>
+          <div class="agent-type">Autonomous Buyer Agent</div>
+          <div class="wallet-info">
+            <div class="wallet-balance" id="balance">500.00 STX</div>
+            <div class="wallet-address" id="address">ST2W4FEZHSEECBGX52SNBWNR9HC596QF34RHQER3R</div>
+            <div class="network-badge" id="network-badge">🧪 Testnet</div>
+          </div>
+        </div>
+        
+        <div class="panel-header" style="margin: 1rem -1rem; padding: 0.75rem 1rem;">
+          <span>📡 Discovered Services</span>
+          <button onclick="discoverServices()" style="background: none; border: none; color: #3498db; cursor: pointer; font-size: 0.8rem;">Refresh</button>
+        </div>
+        
+        <div class="discovered-services" id="services-list">
+          <div class="empty-state">Click "Discover" to find agents...</div>
+        </div>
+        
+        <div class="quick-actions">
+          <button class="quick-btn" onclick="setTask('nft')"><span class="icon">🖼️</span>NFT Intel</button>
+          <button class="quick-btn" onclick="setTask('stacking')"><span class="icon">📈</span>Stacking</button>
+          <button class="quick-btn" onclick="setTask('defi')"><span class="icon">🔄</span>DeFi</button>
+          <button class="quick-btn" onclick="setTask('bns')"><span class="icon">🆔</span>BNS</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Center Panel - Console -->
+    <div class="panel console-panel">
+      <div class="panel-header">
+        <span>⚡ Agent Console</span>
+        <button onclick="clearConsole()" style="background: none; border: none; color: #888; cursor: pointer; font-size: 0.8rem;">Clear</button>
+      </div>
+      <div class="panel-body" style="flex: 1; display: flex; flex-direction: column;">
+        <div class="console-output" id="console">
+          <div class="console-line info"><span class="timestamp">[00:00:00]</span>Agent initialized. Ready to connect to x402 marketplace.</div>
+          <div class="console-line"><span class="timestamp">[00:00:00]</span>Wallet loaded: ST2W4...ER3R</div>
+          <div class="console-line success"><span class="timestamp">[00:00:00]</span>Network: Stacks Testnet</div>
+          <div class="console-line"><span class="timestamp">[00:00:00]</span>Type a task or select a quick action to begin.</div>
+        </div>
+        
+        <div class="task-input-area">
+          <label>What should your agent do?</label>
+          <textarea class="task-input" id="task-input" rows="3" placeholder="e.g., 'Check the floor price of Megapont collection and find undervalued NFTs'"></textarea>
+          <div class="task-actions">
+            <button class="action-btn secondary" onclick="discoverServices()">🔍 Discover</button>
+            <button class="action-btn secondary" onclick="suggestTask()" style="background: rgba(155, 89, 182, 0.2); color: #9b59b6;">💡 Suggest</button>
+            <button class="action-btn primary" id="execute-btn" onclick="executeTask()">⚡ Execute</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right Panel - Transactions -->
+    <div class="panel">
+      <div class="panel-header">
+        <span>📜 Transactions</span>
+        <span id="tx-count" style="color: #888; font-size: 0.8rem;">0 payments</span>
+      </div>
+      <div class="panel-body">
+        <div class="tx-list" id="tx-list">
+          <div class="empty-state">No transactions yet.<br>Execute a task to see payments.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000';
+    let balance = 500.00;
+    let transactions = [];
+    let discoveredAgents = [];
+    
+    // Mock endpoints from marketplace
+    const marketplaceEndpoints = [
+      { agent: 'Gamma NFT', endpoint: '/gamma/floor-price', price: 0.001, desc: 'Get collection floor' },
+      { agent: 'Gamma NFT', endpoint: '/gamma/rarity', price: 0.002, desc: 'Calculate rarity' },
+      { agent: 'BNS Agent', endpoint: '/bns/check', price: 0.0005, desc: 'Check name availability' },
+      { agent: 'BNS Agent', endpoint: '/bns/valuation', price: 0.002, desc: 'Estimate value' },
+      { agent: 'Stacking Agent', endpoint: '/stacking/pools', price: 0.001, desc: 'Compare pools' },
+      { agent: 'Stacking Agent', endpoint: '/stacking/rewards-calc', price: 0.001, desc: 'Calculate rewards' },
+      { agent: 'ALEX DEX', endpoint: '/alex/price', price: 0.001, desc: 'Token price' },
+      { agent: 'ALEX DEX', endpoint: '/alex/lp-yield', price: 0.002, desc: 'LP yields' },
+      { agent: 'Clarity Agent', endpoint: '/clarity/audit', price: 0.01, desc: 'Security audit' },
+      { agent: 'Arkadiko', endpoint: '/arkadiko/usda-rate', price: 0.001, desc: 'USDA rate' },
+    ];
+    
+    const tasks = {
+      nft: {
+        name: 'NFT Collection Analysis',
+        endpoints: ['/gamma/floor-price', '/gamma/rarity']
+      },
+      stacking: {
+        name: 'Stacking Optimization',
+        endpoints: ['/stacking/pools', '/stacking/rewards-calc']
+      },
+      defi: {
+        name: 'DeFi Yield Search',
+        endpoints: ['/alex/price', '/alex/lp-yield', '/arkadiko/usda-rate']
+      },
+      bns: {
+        name: 'BNS Name Research',
+        endpoints: ['/bns/check', '/bns/valuation']
+      }
+    };
+    
+    function log(message, type = '') {
+      const console = document.getElementById('console');
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+      const line = document.createElement('div');
+      line.className = 'console-line ' + type;
+      line.innerHTML = `<span class="timestamp">[${time}]</span>${message}`;
+      console.appendChild(line);
+      console.scrollTop = console.scrollHeight;
+    }
+    
+    function clearConsole() {
+      document.getElementById('console').innerHTML = '';
+      log('Console cleared.', 'info');
+    }
+    
+    function updateBalance() {
+      document.getElementById('balance').textContent = balance.toFixed(2) + ' STX';
+    }
+    
+    function discoverServices() {
+      log('Discovering marketplace services...', 'info');
+      
+      setTimeout(() => {
+        log(`Found ${marketplaceEndpoints.length} endpoints from 5 agents`, 'success');
+        
+        const list = document.getElementById('services-list');
+        list.innerHTML = marketplaceEndpoints.slice(0, 6).map((s, i) => `
+          <div class="service-item" onclick="selectService(${i})">
+            <span>${s.endpoint}</span>
+            <span class="service-price">${s.price} STX</span>
+          </div>
+        `).join('');
+        
+        discoveredAgents = marketplaceEndpoints;
+        log('Services cached. Ready to execute tasks.', 'info');
+      }, 500);
+    }
+    
+    function selectService(index) {
+      document.querySelectorAll('.service-item').forEach(el => el.classList.remove('selected'));
+      document.querySelectorAll('.service-item')[index].classList.add('selected');
+      
+      const service = marketplaceEndpoints[index];
+      document.getElementById('task-input').value = `Call ${service.endpoint} from ${service.agent}`;
+    }
+    
+    function setTask(taskId) {
+      const task = tasks[taskId];
+      if (task) {
+        document.getElementById('task-input').value = task.name;
+        log(`Selected task: ${task.name}`, 'info');
+      }
+    }
+    
+    function suggestTask() {
+      const suggestions = [
+        "Find undervalued NFTs on Gamma with rarity score > 90 and floor price under 50 STX",
+        "Compare all stacking pools and calculate my potential BTC rewards for 10,000 STX",
+        "Check if 'satoshi.btc' is available and estimate its market value",
+        "Analyze ALEX LP yields and find the best STX pair for passive income",
+        "Audit my Clarity contract for security vulnerabilities and gas optimization",
+        "Monitor Arkadiko vault health and alert if collateral ratio drops below 150%",
+        "Find .btc names expiring this week that are worth more than 100 STX",
+        "Get real-time prices for STX, ALEX, and USDA then calculate arbitrage opportunities",
+        "Research trending Gamma collections and identify whale accumulation patterns",
+        "Calculate optimal stacking strategy: solo vs pool vs liquid stacking",
+        "Check DAO proposals on StackerDAO and summarize voting recommendations",
+        "Find NFT collections where floor is 20% below average sale price",
+        "Analyze my wallet's stacking history and project next cycle rewards",
+        "Compare USDA stability across Arkadiko vaults and find safest collateral type",
+      ];
+      
+      // Pick random suggestion
+      const suggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+      document.getElementById('task-input').value = suggestion;
+      
+      log('💡 Suggested task based on available endpoints:', 'info');
+      log(`"${suggestion}"`, 'success');
+      log('Click Execute to run this task.', 'info');
+    }
+    
+    async function executeTask() {
+      const taskInput = document.getElementById('task-input').value.trim();
+      if (!taskInput) {
+        log('No task specified. Enter a task or select a quick action.', 'warning');
+        return;
+      }
+      
+      const btn = document.getElementById('execute-btn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Running...';
+      
+      log(`Starting task: "${taskInput}"`, 'info');
+      log('Analyzing required endpoints...', 'info');
+      
+      await sleep(300);
+      
+      // Determine which endpoints to call based on task
+      let endpoints = [];
+      const taskLower = taskInput.toLowerCase();
+      
+      if (taskLower.includes('nft') || taskLower.includes('floor') || taskLower.includes('gamma') || taskLower.includes('collection')) {
+        endpoints = marketplaceEndpoints.filter(e => e.endpoint.includes('gamma'));
+      } else if (taskLower.includes('stack') || taskLower.includes('pool') || taskLower.includes('btc reward')) {
+        endpoints = marketplaceEndpoints.filter(e => e.endpoint.includes('stacking'));
+      } else if (taskLower.includes('defi') || taskLower.includes('yield') || taskLower.includes('alex') || taskLower.includes('lp')) {
+        endpoints = marketplaceEndpoints.filter(e => e.endpoint.includes('alex') || e.endpoint.includes('arkadiko'));
+      } else if (taskLower.includes('bns') || taskLower.includes('name') || taskLower.includes('.btc')) {
+        endpoints = marketplaceEndpoints.filter(e => e.endpoint.includes('bns'));
+      } else if (taskLower.includes('audit') || taskLower.includes('clarity') || taskLower.includes('contract')) {
+        endpoints = marketplaceEndpoints.filter(e => e.endpoint.includes('clarity'));
+      } else {
+        endpoints = marketplaceEndpoints.slice(0, 3);
+      }
+      
+      log(`Identified ${endpoints.length} required endpoint(s)`, 'info');
+      
+      for (const endpoint of endpoints) {
+        await sleep(400);
+        log(`Calling ${endpoint.agent}: ${endpoint.endpoint}`, 'info');
+        
+        await sleep(200);
+        log(`Received HTTP 402 - Payment Required`, 'warning');
+        log(`Price: ${endpoint.price} STX → ${endpoint.agent}`, 'payment');
+        
+        await sleep(300);
+        log(`Signing STX transfer...`, 'info');
+        
+        await sleep(400);
+        const txId = generateTxId();
+        log(`Transaction broadcast: ${txId.slice(0, 16)}...`, 'success');
+        
+        // Add transaction
+        addTransaction(endpoint, txId);
+        
+        // Update balance
+        balance -= endpoint.price;
+        updateBalance();
+        
+        await sleep(200);
+        log(`✅ Response received from ${endpoint.agent}`, 'success');
+      }
+      
+      await sleep(300);
+      log('', '');
+      log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '');
+      log(`✅ Task complete! Made ${endpoints.length} payments.`, 'success');
+      log(`Total spent: ${endpoints.reduce((a, e) => a + e.price, 0).toFixed(4)} STX`, 'payment');
+      log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '');
+      
+      btn.disabled = false;
+      btn.textContent = '⚡ Execute Task';
+    }
+    
+    function generateTxId() {
+      return [...Array(64)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+    }
+    
+    function addTransaction(endpoint, txId) {
+      transactions.unshift({ endpoint, txId, time: new Date() });
+      
+      const list = document.getElementById('tx-list');
+      const count = document.getElementById('tx-count');
+      
+      count.textContent = `${transactions.length} payment${transactions.length !== 1 ? 's' : ''}`;
+      
+      list.innerHTML = transactions.map(tx => `
+        <div class="tx-item">
+          <div class="tx-header">
+            <div class="tx-status">
+              <div class="tx-status-dot"></div>
+              <span>Confirmed</span>
+            </div>
+            <div class="tx-amount">-${tx.endpoint.price} STX</div>
+          </div>
+          <div class="tx-endpoint">→ ${tx.endpoint.agent}: ${tx.endpoint.endpoint}</div>
+          <div class="tx-details">
+            <a href="https://explorer.stacks.co/txid/${tx.txId}?chain=testnet" target="_blank">
+              ${tx.txId.slice(0, 20)}...
+            </a>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function sleep(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+    
+    // Initialize
+    setTimeout(discoverServices, 1000);
+  </script>
+</body>
+</html>
