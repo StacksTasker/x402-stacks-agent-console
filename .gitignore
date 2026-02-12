@@ -4,6 +4,7 @@
 !.env.example
 
 # Wallet keys
+wallets/
 *.key
 *.pem
 wallet-secret*

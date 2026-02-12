@@ -262,7 +262,7 @@
         <span>Open Tasks</span>
         <div style="display:flex;align-items:center;gap:0.5rem;">
           <label style="font-size:0.7rem;color:#888;display:flex;align-items:center;gap:0.3rem;cursor:pointer;">
-            <input type="checkbox" id="auto-refresh-toggle" style="accent-color:#2ecc71;" onchange="toggleAutoRefresh()"> Auto
+            <input type="checkbox" id="auto-refresh-toggle" style="accent-color:#2ecc71;" checked onchange="toggleAutoRefresh()"> Auto
           </label>
           <button onclick="fetchTasks()" style="background:none;border:none;color:#3498db;cursor:pointer;font-size:0.8rem;font-family:inherit;">Refresh</button>
         </div>
@@ -374,7 +374,7 @@
         </div>
         <div id="wallet-secret-area" style="display:none;margin-bottom:0.5rem;">
           <div style="background:rgba(46,204,113,0.08);border:1px solid rgba(46,204,113,0.2);border-radius:6px;padding:0.5rem 0.65rem;font-size:0.85rem;color:#ccc;">
-            Private key saved to <strong style="color:#2ecc71;">localStorage</strong> <span style="color:#888;">(browser-only)</span>
+            Keypair saved to <strong style="color:#2ecc71;">wallets/</strong> folder <span style="color:#888;">(gitignored — never committed)</span>
           </div>
           <div class="test-result" id="wallet-gen-result"></div>
         </div>
@@ -494,7 +494,7 @@
       // Runtime (not persisted)
       tasks: [],
       selectedTask: null,
-      autoRefresh: false,
+      autoRefresh: true,
       pollTimer: null,
       executing: false,
     };
@@ -516,7 +516,7 @@
     function loadState() {
       try {
         const s = localStorage.getItem('x402-app-state');
-        if (s) { const p = JSON.parse(s); Object.assign(AppState, { network: p.network, apiUrl: p.apiUrl, ollamaUrl: p.ollamaUrl }); }
+        if (s) { const p = JSON.parse(s); Object.assign(AppState, { network: p.network, apiUrl: p.apiUrl, ollamaUrl: p.ollamaUrl, autoRefresh: p.autoRefresh !== undefined ? p.autoRefresh : true }); }
         const ag = localStorage.getItem('x402-agents');
         if (ag) AppState.agents = JSON.parse(ag);
         const idx = localStorage.getItem('x402-active-agent');
@@ -548,9 +548,9 @@
     }
     function saveAll() {
       try {
-        localStorage.setItem('x402-app-state', JSON.stringify({ network: AppState.network, apiUrl: AppState.apiUrl, ollamaUrl: AppState.ollamaUrl }));
+        localStorage.setItem('x402-app-state', JSON.stringify({ network: AppState.network, apiUrl: AppState.apiUrl, ollamaUrl: AppState.ollamaUrl, autoRefresh: AppState.autoRefresh }));
         // Strip cloudKey for agents using .env
-        const safe = AppState.agents.map(a => ({ ...a, cloudKey: a.useEnvKey ? '' : a.cloudKey, profile: null }));
+        const safe = AppState.agents.map(a => ({ ...a, cloudKey: '', profile: null }));
         localStorage.setItem('x402-agents', JSON.stringify(safe));
         localStorage.setItem('x402-active-agent', AppState.activeAgentIdx.toString());
       } catch(e) { /* ignore */ }
@@ -1034,14 +1034,34 @@
       if (net==='stacks') { const h1=await sha256(pk),h2=await sha256(h1),p=new Uint8Array(21);p[0]=26;p.set(h2.slice(0,20),1);const c1=await sha256(p),c2=await sha256(c1),f=new Uint8Array(25);f.set(p);f.set(c2.slice(0,4),21);addr='ST'+base58Encode(f.slice(1)); }
       else if (net==='solana') { addr=base58Encode(await sha256(pk)); }
       else { addr='0x'+bytesToHex((await sha256(pk)).slice(0,20)); }
-      const wid = editingAgentIdx>=0 ? AppState.agents[editingAgentIdx].id : 'new';
-      localStorage.setItem('x402-wallet-'+wid, JSON.stringify({network:net,address:addr,privateKey:bytesToHex(pk),created:new Date().toISOString()}));
       document.getElementById('ag-wallet').value=addr;
+      // Save keypair to wallets/ folder as a downloaded JSON file
+      const keypair = { network: net, address: addr, privateKey: bytesToHex(pk), created: new Date().toISOString() };
+      const filename = `wallet-${addr.slice(0,10)}.json`;
+      const blob = new Blob([JSON.stringify(keypair, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+      a.download = `wallets/${filename}`; a.click(); URL.revokeObjectURL(a.href);
       document.getElementById('wallet-secret-area').style.display='';
       const res=document.getElementById('wallet-gen-result');
-      res.textContent=`Generated ${(NET[net]||NET.stacks).label} wallet. Key saved ${new Date().toLocaleTimeString()}.`;
+      res.textContent=`Generated ${(NET[net]||NET.stacks).label} wallet. Keypair downloaded as wallets/${filename} — save it to the wallets/ folder.`;
       res.className='test-result ok';
-      log(`Generated wallet: ${addr.slice(0,12)}...`,'success');
+      log(`Generated wallet: ${addr.slice(0,12)}... — keypair file downloaded`,'success');
+    }
+
+    // ── Load wallet keys from wallets/ folder ─────────────────
+    async function loadWalletKeys() {
+      for (const agent of AppState.agents) {
+        if (!agent.wallet) continue;
+        const prefix = agent.wallet.slice(0, 10);
+        try {
+          const res = await fetch(`/wallets/wallet-${prefix}.json`);
+          if (!res.ok) continue;
+          const data = await res.json();
+          if (data.privateKey && data.address === agent.wallet) {
+            agent._privateKey = data.privateKey;
+          }
+        } catch(e) { /* wallet file not found, skip */ }
+      }
     }
 
     // ── .env reload on startup ─────────────────────────────────
@@ -1067,6 +1087,7 @@
     loadState();
     document.getElementById('network-selector').value = AppState.network||'stacks';
     reloadEnvKeys();
+    loadWalletKeys();
     checkConnection();
     renderAgentList();
     if (AppState.activeAgentIdx >= 0) switchToAgent(AppState.activeAgentIdx);
