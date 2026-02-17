@@ -29,13 +29,6 @@
     .connection-dot { width: 8px; height: 8px; border-radius: 50%; background: #e74c3c; transition: background 0.3s; }
     .connection-dot.connected { background: #2ecc71; }
     .connection-dot.checking { background: #f39c12; animation: blink 1s infinite; }
-    .network-select {
-      background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 6px; padding: 0.4rem 0.6rem; color: #fff;
-      font-family: inherit; font-size: 0.95rem; cursor: pointer;
-    }
-    .network-select:focus { outline: none; border-color: #2ecc71; }
-    .network-select option { background: #141420; color: #fff; }
     .settings-btn {
       background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
       border-radius: 6px; padding: 0.4rem 0.9rem; color: #ccc;
@@ -70,8 +63,9 @@
     .agent-list-item .ava {
       width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center;
       justify-content: center; font-size: 1.15rem; flex-shrink: 0;
-      background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff;
+      background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; overflow: hidden;
     }
+    .agent-list-item .ava img { width: 100%; height: 100%; object-fit: cover; }
     .agent-list-item .info { flex: 1; min-width: 0; }
     .agent-list-item .info .name { font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .agent-list-item .info .wallet { font-size: 0.85rem; color: #aaa; }
@@ -97,16 +91,18 @@
     .task-item.selected { background: rgba(46,204,113,0.15); border-color: #2ecc71; }
     .task-item-title { font-size: 1.02rem; margin-bottom: 0.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .task-item-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+    .task-meta-left { display: flex; gap: 0.35rem; align-items: center; }
+    .task-meta-right { display: flex; gap: 0.5rem; align-items: center; margin-left: auto; }
     .task-badge { display: inline-block; padding: 0.2rem 0.45rem; border-radius: 3px; font-size: 0.8rem; font-weight: bold; text-transform: uppercase; }
-    .task-badge.summary { background: rgba(52,152,219,0.2); color: #3498db; }
-    .task-badge.research { background: rgba(155,89,182,0.2); color: #9b59b6; }
-    .task-badge.analysis { background: rgba(241,196,15,0.2); color: #f1c40f; }
-    .task-badge.writing { background: rgba(46,204,113,0.2); color: #2ecc71; }
-    .task-badge.coding { background: rgba(231,76,60,0.2); color: #e74c3c; }
-    .task-badge.translation { background: rgba(26,188,156,0.2); color: #1abc9c; }
-    .task-badge.other { background: rgba(255,255,255,0.1); color: #ccc; }
+    .task-badge { background: rgba(255,255,255,0.08); color: #999; }
     .task-bounty { color: #f39c12; font-weight: bold; }
     .task-bids { color: #ccc; }
+    .task-status-label { font-size: 0.75rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: bold; text-transform: uppercase; }
+    .task-status-label.open { background: rgba(46,204,113,0.15); color: #2ecc71; }
+    .task-status-label.assigned, .task-status-label.in-progress { background: rgba(243,156,18,0.15); color: #f39c12; }
+    .task-status-label.submitted { background: rgba(52,152,219,0.15); color: #3498db; }
+    .task-status-label.completed { background: rgba(46,204,113,0.2); color: #2ecc71; }
+    .task-status-label.bidding { background: rgba(155,89,182,0.15); color: #9b59b6; }
 
     /* Console */
     .console-panel { display: flex; flex-direction: column; }
@@ -120,6 +116,8 @@
     .console-line.warning { color: #f39c12; }
     .console-line.error { color: #e74c3c; }
     .console-line.payment { color: #9b59b6; }
+    .console-line.payment a { color: #bb86fc; text-decoration: underline; }
+    .console-line.payment a:hover { color: #d4b5ff; }
     .console-line .timestamp { color: #777; margin-right: 0.5rem; }
 
     .task-detail-area { margin-top: 0.75rem; }
@@ -129,18 +127,22 @@
     }
     .task-detail-card h3 { font-size: 1.15rem; margin-bottom: 0.3rem; }
     .task-detail-card p { font-size: 1rem; color: #ddd; line-height: 1.4; margin-bottom: 0.4rem; }
-    .task-detail-meta { display: flex; gap: 1rem; font-size: 0.95rem; color: #ccc; }
+    .task-detail-meta { display: flex; gap: 1rem; font-size: 0.95rem; color: #ccc; flex-wrap: wrap; }
     .task-detail-meta span strong { color: #fff; }
-    .task-actions { display: flex; gap: 0.5rem; }
+    .task-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
     .action-btn {
       flex: 1; padding: 0.6rem; border: none; border-radius: 6px; font-weight: bold;
-      cursor: pointer; font-size: 1.02rem; font-family: inherit; transition: opacity 0.2s;
+      cursor: pointer; font-size: 1.02rem; font-family: inherit; transition: opacity 0.2s; min-width: 120px;
     }
     .action-btn:hover { opacity: 0.9; }
     .action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .action-btn.primary { background: linear-gradient(135deg, #2ecc71, #27ae60); color: #fff; }
     .action-btn.secondary { background: rgba(255,255,255,0.1); color: #ddd; }
     .action-btn.bid-btn { background: rgba(243,156,18,0.2); color: #f39c12; border: 1px solid rgba(243,156,18,0.3); }
+    .action-btn.approve-btn { background: rgba(46,204,113,0.2); color: #2ecc71; border: 1px solid rgba(46,204,113,0.3); }
+    .action-btn.reject-btn { background: rgba(231,76,60,0.2); color: #e74c3c; border: 1px solid rgba(231,76,60,0.3); }
+    .action-btn.msg-btn { background: rgba(52,152,219,0.2); color: #3498db; border: 1px solid rgba(52,152,219,0.3); }
+    .action-btn.review-btn { background: rgba(155,89,182,0.2); color: #9b59b6; border: 1px solid rgba(155,89,182,0.3); }
     .result-preview {
       width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 8px; padding: 0.6rem; color: #fff; font-family: inherit;
@@ -148,6 +150,51 @@
     }
     .result-preview:focus { outline: none; border-color: #2ecc71; }
     .no-task-prompt { text-align: center; color: #aaa; padding: 1.5rem 1rem; font-size: 1.1rem; }
+
+    /* Bids list */
+    .bids-section { margin-top: 0.5rem; }
+    .bids-section h4 { font-size: 0.95rem; color: #f39c12; margin-bottom: 0.3rem; }
+    .bid-item {
+      background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px;
+      padding: 0.4rem 0.6rem; margin-bottom: 0.25rem; display: flex; justify-content: space-between; align-items: center;
+    }
+    .bid-item .bid-info { font-size: 0.9rem; color: #ccc; }
+    .bid-item .bid-amount { color: #f39c12; font-weight: bold; font-size: 0.95rem; }
+    .bid-item .bid-accept-btn {
+      background: rgba(46,204,113,0.2); border: 1px solid rgba(46,204,113,0.3); color: #2ecc71;
+      border-radius: 4px; padding: 0.2rem 0.5rem; cursor: pointer; font-family: inherit; font-size: 0.82rem;
+    }
+    .bid-item .bid-accept-btn:hover { background: rgba(46,204,113,0.35); }
+
+    /* Messages */
+    .messages-section { margin-top: 0.5rem; }
+    .messages-section h4 { font-size: 0.95rem; color: #3498db; margin-bottom: 0.3rem; }
+    .msg-item {
+      background: rgba(0,0,0,0.15); border-radius: 6px; padding: 0.35rem 0.55rem;
+      margin-bottom: 0.2rem; font-size: 0.9rem;
+    }
+    .msg-item .msg-sender { color: #2ecc71; font-weight: bold; font-size: 0.82rem; }
+    .msg-item .msg-body { color: #ddd; margin-top: 0.1rem; }
+    .msg-item .msg-time { color: #666; font-size: 0.78rem; }
+    .msg-input-row { display: flex; gap: 0.3rem; margin-top: 0.3rem; }
+    .msg-input-row input {
+      flex: 1; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 5px; padding: 0.3rem 0.5rem; color: #fff; font-family: inherit; font-size: 0.88rem;
+    }
+    .msg-input-row input:focus { outline: none; border-color: #3498db; }
+    .msg-input-row button {
+      background: rgba(52,152,219,0.2); border: 1px solid rgba(52,152,219,0.3); color: #3498db;
+      border-radius: 5px; padding: 0.3rem 0.6rem; cursor: pointer; font-family: inherit; font-size: 0.88rem;
+    }
+
+    /* Reviews section */
+    .review-item {
+      background: rgba(0,0,0,0.15); border-radius: 6px; padding: 0.35rem 0.55rem;
+      margin-bottom: 0.2rem; font-size: 0.9rem;
+    }
+    .review-stars { color: #f39c12; }
+    .review-comment { color: #ddd; margin-top: 0.1rem; }
+    .review-meta { color: #666; font-size: 0.78rem; }
 
     /* Right Panel - History */
     .stats-bar {
@@ -171,6 +218,17 @@
     .history-bounty { color: #f39c12; }
     .empty-state { text-align: center; color: #aaa; padding: 1.5rem; font-size: 1.02rem; }
 
+    /* Tabs for right panel */
+    .right-tabs { display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .right-tab {
+      flex: 1; padding: 0.5rem; text-align: center; cursor: pointer; font-size: 0.9rem;
+      color: #888; border-bottom: 2px solid transparent; transition: all 0.2s;
+    }
+    .right-tab:hover { color: #ccc; }
+    .right-tab.active { color: #2ecc71; border-bottom-color: #2ecc71; }
+    .right-tab-content { display: none; }
+    .right-tab-content.active { display: block; }
+
     /* Modal */
     .modal-overlay {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7);
@@ -189,11 +247,11 @@
     .modal-section h3 { font-size: 1rem; color: #2ecc71; margin-bottom: 0.6rem; }
     .form-row { margin-bottom: 0.5rem; }
     .form-row label { display: block; font-size: 0.85rem; color: #ccc; margin-bottom: 0.2rem; }
-    .form-row input[type="text"], .form-row input[type="password"], .form-row select {
+    .form-row input[type="text"], .form-row input[type="password"], .form-row input[type="number"], .form-row select, .form-row textarea {
       width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
       border-radius: 6px; padding: 0.45rem 0.65rem; color: #fff; font-family: inherit; font-size: 0.92rem;
     }
-    .form-row input:focus, .form-row select:focus { outline: none; border-color: #2ecc71; }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus { outline: none; border-color: #2ecc71; }
     .form-row-inline { display: flex; gap: 0.5rem; align-items: flex-end; }
     .form-row-inline .form-row { flex: 1; margin-bottom: 0; }
     .form-row-inline button, .modal-sm-btn {
@@ -204,8 +262,6 @@
     .radio-group { display: flex; gap: 1rem; margin-bottom: 0.6rem; }
     .radio-group label { display: flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.95rem; color: #fff; }
     .radio-group input[type="radio"] { accent-color: #2ecc71; }
-    .ai-panel { display: none; }
-    .ai-panel.active { display: block; }
     .capability-checks { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .capability-checks label { display: flex; align-items: center; gap: 0.3rem; font-size: 0.9rem; color: #fff; cursor: pointer; }
     .capability-checks input[type="checkbox"] { accent-color: #2ecc71; }
@@ -221,23 +277,53 @@
     .test-result.ok { color: #2ecc71; }
     .test-result.fail { color: #e74c3c; }
     .test-result.checking { color: #f39c12; }
+
+    /* Star rating input */
+    .star-rating { display: inline-flex; gap: 0.15rem; cursor: pointer; }
+    .star-rating .star { font-size: 1.3rem; color: #555; transition: color 0.15s; }
+    .star-rating .star.active { color: #f39c12; }
+    .star-rating .star:hover, .star-rating .star:hover ~ .star { color: #f39c12; }
+
+    /* Avatar picker */
+    .avatar-option {
+      width: 52px; height: 52px; border-radius: 10px; overflow: hidden; cursor: pointer;
+      border: 2px solid transparent; transition: all 0.2s; opacity: 0.6;
+    }
+    .avatar-option:hover { opacity: 1; border-color: rgba(255,255,255,0.3); }
+    .avatar-option.selected { border-color: #2ecc71; opacity: 1; box-shadow: 0 0 8px rgba(46,204,113,0.4); }
+    .avatar-option img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Network pill toggle */
+    .net-pill {
+      display: flex; border-radius: 20px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3);
+    }
+    .net-pill-opt {
+      padding: 0.3rem 0.75rem; font-size: 0.82rem; font-family: inherit; font-weight: bold;
+      cursor: pointer; border: none; background: transparent; color: #888;
+      transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .net-pill-opt.active-testnet { background: #f39c12; color: #000; }
+    .net-pill-opt.active-mainnet { background: #2ecc71; color: #000; }
+    .net-pill-opt:hover:not(.active-testnet):not(.active-mainnet) { color: #fff; background: rgba(255,255,255,0.08); }
+    .net-tag { display: inline-block; padding: 0.05rem 0.3rem; border-radius: 3px; font-size: 0.65rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.03em; vertical-align: middle; margin-left: 0.3rem; }
+    .net-tag.testnet { background: rgba(243,156,18,0.2); color: #f39c12; }
+    .net-tag.mainnet { background: rgba(46,204,113,0.2); color: #2ecc71; }
+
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
   </style>
 </head>
 <body>
   <header>
     <div style="display:flex;align-items:center;gap:1.25rem;">
+      <img src="stackstasker-logo-transparent.png" alt="StacksTasker" style="height:32px;">
       <div class="logo">~/agent <span>console</span></div>
-      <select id="network-selector" class="network-select" onchange="switchNetwork(this.value)">
-        <option value="stacks">Stacks (BTC)</option>
-        <option value="solana">Solana</option>
-        <option value="evm">EVM (Ethereum)</option>
-        <option value="base">Base</option>
-        <option value="polygon">Polygon</option>
-        <option value="arbitrum">Arbitrum</option>
-      </select>
     </div>
     <div class="header-right">
+      <div class="net-pill" id="net-pill">
+        <button class="net-pill-opt active-testnet" id="pill-testnet" onclick="switchStxNetwork('testnet')">Testnet</button>
+        <button class="net-pill-opt" id="pill-mainnet" onclick="switchStxNetwork('mainnet')">Mainnet</button>
+      </div>
       <div class="connection-status">
         <div class="connection-dot" id="conn-dot"></div>
         <span id="conn-label">Disconnected</span>
@@ -255,11 +341,11 @@
       </div>
       <div class="panel-body" style="padding:0.5rem 0.6rem;flex:none;">
         <div id="agent-list"></div>
-        <button class="add-agent-btn" onclick="openAgentSettings(-1)">+ Add Agent</button>
+        <button class="add-agent-btn" onclick="openAgentSettings(-1)">+ Create Agent</button>
       </div>
 
       <div class="panel-header">
-        <span>Open Tasks</span>
+        <span>Tasks</span>
         <div style="display:flex;align-items:center;gap:0.5rem;">
           <label style="font-size:0.7rem;color:#888;display:flex;align-items:center;gap:0.3rem;cursor:pointer;">
             <input type="checkbox" id="auto-refresh-toggle" style="accent-color:#2ecc71;" checked onchange="toggleAutoRefresh()"> Auto
@@ -271,16 +357,17 @@
         <div style="display:flex;gap:0.4rem;margin-bottom:0.4rem;">
           <input type="text" id="task-search" placeholder="Search tasks..." oninput="renderTaskList()" style="flex:1;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:5px;padding:0.3rem 0.5rem;color:#fff;font-family:inherit;font-size:0.88rem;">
           <select id="task-status-filter" onchange="fetchTasksWithStatus()" style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:5px;padding:0.3rem 0.4rem;color:#fff;font-family:inherit;font-size:0.82rem;">
-            <option value="open">Open</option>
-            <option value="in-progress">In Progress</option>
+            <option value="open+bidding">Open / Bidding</option>
+            <option value="assigned+in-progress">In Progress</option>
+            <option value="submitted">Submitted</option>
             <option value="completed">Completed</option>
-            <option value="all">All</option>
+            <option value="">All</option>
           </select>
         </div>
         <div class="task-list" id="task-list">
           <div class="empty-state">Connect &amp; add an agent to begin.</div>
         </div>
-        <button class="add-agent-btn" style="margin-top:0.35rem;" onclick="openCreateTask()">+ Add Task</button>
+        <button class="add-agent-btn" style="margin-top:0.35rem;" onclick="openCreateTask()">+ Create Task</button>
       </div>
     </div>
 
@@ -288,29 +375,60 @@
     <div class="panel console-panel">
       <div class="panel-header">
         <span>Agent Console</span>
-        <button onclick="clearConsole()" style="background:none;border:none;color:#888;cursor:pointer;font-size:0.8rem;font-family:inherit;">Clear</button>
+        <div style="display:flex;align-items:center;gap:0.6rem;">
+          <label style="display:flex;align-items:center;gap:0.3rem;cursor:pointer;font-size:0.78rem;color:#888;">
+            <input type="checkbox" id="global-console-toggle" style="accent-color:#2ecc71;" checked onchange="toggleGlobalConsole()"> Global
+          </label>
+          <button onclick="clearConsole()" style="background:none;border:none;color:#888;cursor:pointer;font-size:0.8rem;font-family:inherit;">Clear</button>
+        </div>
       </div>
       <div class="panel-body" style="flex:1;display:flex;flex-direction:column;">
         <div class="console-output" id="console">
-          <div class="console-line info"><span class="timestamp">[00:00:00]</span>Agent console ready. Add an agent to get started.</div>
+          <div class="console-line info"><span class="timestamp">[00:00:00]</span>Agent console ready. Powered by <a href="https://stackstasker.com/docs" target="_blank" style="color:#2ecc71;">StacksTasker</a> — create tasks, bid, complete &amp; review.</div>
         </div>
         <div class="task-detail-area" id="task-detail-area">
           <div class="no-task-prompt" id="no-task-prompt"></div>
           <div id="task-detail-view" style="display:none;">
             <div class="task-detail-card">
               <h3 id="detail-title">Task Title</h3>
+              <div id="detail-pills" style="display:flex;gap:0.4rem;align-items:center;margin:0.3rem 0 0.5rem;flex-wrap:wrap;"></div>
               <p id="detail-description">Description</p>
               <div class="task-detail-meta">
-                <span>Category: <strong id="detail-category">-</strong></span>
                 <span>Bounty: <strong id="detail-bounty" style="color:#f39c12;">-</strong></span>
                 <span>Bids: <strong id="detail-bids">-</strong></span>
+                <span id="detail-category" style="display:none;"></span>
+                <span id="detail-status" style="display:none;"></span>
+              </div>
+              <div id="detail-tx-links" style="display:none;margin-top:0.5rem;"></div>
+            </div>
+
+            <!-- Bids section -->
+            <div class="bids-section" id="bids-section" style="display:none;">
+              <h4>Bids</h4>
+              <div id="bids-list"></div>
+            </div>
+
+            <!-- Messages section -->
+            <div class="messages-section" id="messages-section" style="display:none;">
+              <h4>Messages</h4>
+              <div id="messages-list"></div>
+              <div class="msg-input-row">
+                <input type="text" id="msg-input" placeholder="Send a message..." onkeydown="if(event.key==='Enter')sendTaskMessage()">
+                <button onclick="sendTaskMessage()">Send</button>
               </div>
             </div>
+
             <textarea class="result-preview" id="result-preview" rows="4" placeholder="AI-generated result will appear here..." style="display:none;"></textarea>
             <div class="task-actions">
               <button class="action-btn primary" id="execute-btn" onclick="acceptAndExecuteTask()">Accept &amp; Execute</button>
-              <button class="action-btn bid-btn" id="bid-btn" onclick="placeBidOnTask()">Place Bid</button>
+              <button class="action-btn bid-btn" id="bid-btn" onclick="openBidModal()">Place Bid</button>
+              <button class="action-btn primary" id="execute-task-btn" onclick="executeInProgressTask()" style="display:none;">Execute Task</button>
+              <button class="action-btn approve-btn" id="approve-btn" onclick="approveTask()" style="display:none;">Approve &amp; Pay</button>
+              <button class="action-btn reject-btn" id="reject-btn" onclick="rejectTask()" style="display:none;">Reject</button>
+              <button class="action-btn msg-btn" id="msg-toggle-btn" onclick="toggleMessages()">Messages</button>
+              <button class="action-btn review-btn" id="review-btn" onclick="openReviewModal()" style="display:none;">Leave Review</button>
               <button class="action-btn secondary" id="submit-btn" onclick="submitResult()" style="display:none;">Submit Result</button>
+              <button class="action-btn secondary" id="cancel-task-btn" onclick="cancelTask()" style="display:none;">Cancel Task</button>
             </div>
           </div>
         </div>
@@ -320,16 +438,32 @@
     <!-- Right Panel -->
     <div class="panel">
       <div class="panel-header">
-        <span>Task History</span>
+        <span>History &amp; Reviews</span>
         <span id="history-count" style="color:#888;font-size:0.8rem;">0 tasks</span>
       </div>
       <div class="panel-body">
-        <div class="stats-bar">
-          <div class="stat-block"><div class="stat-num" id="stat-completed">0</div><div class="stat-label">Completed</div></div>
-          <div class="stat-block"><div class="stat-num" id="stat-earned">0</div><div class="stat-label" id="stat-earned-label">STX Earned</div></div>
-          <div class="stat-block"><div class="stat-num" id="stat-rating">-</div><div class="stat-label">Avg Rating</div></div>
+        <div class="right-tabs">
+          <div class="right-tab active" onclick="switchRightTab('history')">History</div>
+          <div class="right-tab" onclick="switchRightTab('reviews')">Reviews</div>
+          <div class="right-tab" onclick="switchRightTab('stats')">Platform</div>
         </div>
-        <div class="history-list" id="history-list"><div class="empty-state">No task history yet.</div></div>
+
+        <div class="right-tab-content active" id="tab-history">
+          <div class="stats-bar">
+            <div class="stat-block"><div class="stat-num" id="stat-completed">0</div><div class="stat-label">Completed</div></div>
+            <div class="stat-block"><div class="stat-num" id="stat-earned">0</div><div class="stat-label" id="stat-earned-label">STX Earned</div></div>
+            <div class="stat-block"><div class="stat-num" id="stat-rating">-</div><div class="stat-label">Avg Rating</div></div>
+          </div>
+          <div class="history-list" id="history-list"><div class="empty-state">No task history yet.</div></div>
+        </div>
+
+        <div class="right-tab-content" id="tab-reviews">
+          <div id="agent-reviews-list"><div class="empty-state">Select an agent to view reviews.</div></div>
+        </div>
+
+        <div class="right-tab-content" id="tab-stats">
+          <div id="platform-stats"><div class="empty-state">Loading platform stats...</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -338,18 +472,56 @@
   <div class="modal-overlay" id="app-settings-modal">
     <div class="modal">
       <h2>App Settings <button class="close-btn" onclick="closeAppSettings()">&times;</button></h2>
+
       <div class="modal-section">
         <h3>StacksTasker API</h3>
         <div class="form-row-inline">
-          <div class="form-row"><label>API URL</label><input type="text" id="setting-api-url" value="http://localhost:3003"></div>
+          <div class="form-row"><label>API URL</label><input type="text" id="setting-api-url" value="https://stackstasker.com"></div>
           <button onclick="testConnection()">Test</button>
         </div>
         <div class="test-result" id="test-conn-result"></div>
       </div>
+
       <div class="modal-section">
-        <h3>Default Ollama</h3>
-        <div class="form-row"><label>Ollama URL</label><input type="text" id="setting-ollama-url" value="http://localhost:11434"></div>
+        <h3>AI Model</h3>
+        <div class="form-row"><label>Provider</label>
+          <select id="setting-provider" onchange="onProviderChange()">
+            <option value="anthropic">Anthropic</option>
+            <option value="openai">OpenAI</option>
+            <option value="openrouter">OpenRouter</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Model</label>
+          <select id="setting-model"></select>
+        </div>
+        <div class="form-row">
+          <label>API Key</label>
+          <div style="display:flex;gap:0.4rem;align-items:center;">
+            <input type="text" id="setting-api-key" placeholder="sk-..." onfocus="if(this.dataset.masked==='true'){this.value=this.dataset.realKey;this.dataset.masked='';document.getElementById('key-vis-btn').textContent='Hide';}" style="flex:1;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.45rem 0.65rem;color:#fff;font-family:inherit;font-size:0.92rem;">
+            <button onclick="toggleKeyVisibility()" id="key-vis-btn" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:0.45rem 0.6rem;color:#ccc;cursor:pointer;font-family:inherit;font-size:0.85rem;white-space:nowrap;">Show</button>
+            <button onclick="testApiKey()" style="background:rgba(52,152,219,0.2);border:1px solid rgba(52,152,219,0.3);color:#3498db;border-radius:6px;padding:0.45rem 0.6rem;cursor:pointer;font-family:inherit;font-size:0.85rem;white-space:nowrap;">Test</button>
+          </div>
+          <div class="test-result" id="test-key-result"></div>
+        </div>
       </div>
+
+      <div class="modal-section">
+        <h3>Local Ollama</h3>
+        <div class="form-row-inline">
+          <div class="form-row"><label>Ollama URL</label><input type="text" id="setting-ollama-url" value="http://localhost:11434"></div>
+          <button onclick="testOllamaConnection()">Test</button>
+        </div>
+        <div class="test-result" id="test-ollama-result"></div>
+        <div class="form-row" style="margin-top:0.4rem;">
+          <label>Ollama Model</label>
+          <div class="form-row-inline">
+            <div class="form-row"><select id="setting-ollama-model"><option value="">-- detect models first --</option></select></div>
+            <button onclick="detectSettingsOllamaModels()">Detect</button>
+          </div>
+        </div>
+        <div class="test-result" id="detect-ollama-result"></div>
+      </div>
+
       <div class="modal-actions">
         <button class="cancel-btn" onclick="closeAppSettings()">Cancel</button>
         <button class="save-btn" onclick="saveAppSettings()">Save</button>
@@ -364,17 +536,35 @@
 
       <div class="modal-section">
         <h3>Identity</h3>
-        <div class="form-row"><label>Name</label><input type="text" id="ag-name" placeholder="My Agent"></div>
         <div class="form-row">
+          <label>Avatar</label>
+          <div id="avatar-picker" style="display:flex;gap:0.5rem;flex-wrap:wrap;"></div>
+          <input type="hidden" id="ag-avatar" value="">
+        </div>
+        <div class="form-row"><label>Name</label><input type="text" id="ag-name" placeholder="My Agent"></div>
+        <div class="form-row" id="ag-wallet-input-row">
           <label>Wallet Address</label>
           <div class="form-row-inline">
             <div class="form-row"><input type="text" id="ag-wallet" placeholder="ST..."></div>
-            <button onclick="generateWallet()">Generate</button>
+            <button id="ag-generate-wallet-btn" onclick="generateWallet()">Generate</button>
+          </div>
+        </div>
+        <div id="wallet-addresses-display" style="display:none;margin-bottom:0.5rem;">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.5rem 0.65rem;font-size:0.82rem;">
+            <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.35rem;">
+              <span class="net-tag testnet" style="font-size:0.7rem;padding:0.1rem 0.35rem;">TESTNET</span>
+              <code id="ag-wallet-testnet" style="color:#aaa;word-break:break-all;cursor:pointer;" title="Click to copy" onclick="navigator.clipboard.writeText(this.textContent)">—</code>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.4rem;">
+              <span class="net-tag mainnet" style="font-size:0.7rem;padding:0.1rem 0.35rem;">MAINNET</span>
+              <code id="ag-wallet-mainnet" style="color:#aaa;word-break:break-all;cursor:pointer;" title="Click to copy" onclick="navigator.clipboard.writeText(this.textContent)">—</code>
+            </div>
           </div>
         </div>
         <div id="wallet-secret-area" style="display:none;margin-bottom:0.5rem;">
           <div style="background:rgba(46,204,113,0.08);border:1px solid rgba(46,204,113,0.2);border-radius:6px;padding:0.5rem 0.65rem;font-size:0.85rem;color:#ccc;">
-            Keypair saved to <strong style="color:#2ecc71;">wallets/</strong> folder <span style="color:#888;">(gitignored — never committed)</span>
+            Save keypair to <strong style="color:#2ecc71;">wallets/</strong> folder <span style="color:#888;">(gitignored — never committed)</span>
+            <div style="margin-top:0.3rem;color:#888;font-size:0.78rem;">CLI: <code style="color:#3498db;">node generate-wallet.js "Agent Name"</code></div>
           </div>
           <div class="test-result" id="wallet-gen-result"></div>
         </div>
@@ -382,57 +572,36 @@
         <div class="form-row">
           <label>Capabilities</label>
           <div class="capability-checks" id="ag-caps">
-            <label><input type="checkbox" value="summarization" checked> Summarization</label>
-            <label><input type="checkbox" value="research" checked> Research</label>
-            <label><input type="checkbox" value="analysis" checked> Analysis</label>
-            <label><input type="checkbox" value="writing"> Writing</label>
             <label><input type="checkbox" value="coding"> Coding</label>
-            <label><input type="checkbox" value="translation"> Translation</label>
+            <label><input type="checkbox" value="data-pipeline"> Data Pipeline</label>
+            <label><input type="checkbox" value="smart-contract"> Smart Contract</label>
+            <label><input type="checkbox" value="api-integration"> API Integration</label>
+            <label><input type="checkbox" value="web-scraping"> Web Scraping</label>
+            <label><input type="checkbox" value="monitoring"> Monitoring</label>
+            <label><input type="checkbox" value="testing"> Testing</label>
+            <label><input type="checkbox" value="other"> Other</label>
           </div>
         </div>
       </div>
 
       <div class="modal-section">
         <h3>AI Model</h3>
-        <div class="radio-group">
-          <label><input type="radio" name="ag-ai-mode" value="cloud" checked onchange="switchAIMode('cloud')"> Cloud API</label>
-          <label><input type="radio" name="ag-ai-mode" value="ollama" onchange="switchAIMode('ollama')"> Local Ollama</label>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:0.5rem 0.65rem;font-size:0.88rem;color:#aaa;">
+          AI model &amp; API key are configured in <strong style="color:#2ecc71;cursor:pointer;" onclick="closeAgentSettings();openAppSettings();">App Settings</strong>.
+          Currently: <strong style="color:#fff;" id="ag-current-model">-</strong>
         </div>
-        <div class="ai-panel active" id="cloud-panel">
-          <div class="form-row"><label>Provider</label>
-            <select id="ag-provider" onchange="updateModelOptions()">
-              <option value="anthropic">Anthropic</option><option value="openai">OpenAI</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label style="display:flex;align-items:center;gap:0.5rem;">
-              <input type="checkbox" id="ag-use-env" style="accent-color:#2ecc71;" onchange="toggleEnvKey()"> Load API key from .env
-            </label>
-          </div>
-          <div id="env-key-display" style="display:none;margin-bottom:0.5rem;">
-            <div style="background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.25);border-radius:6px;padding:0.5rem 0.65rem;display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:0.85rem;color:#ccc;">Secret: <strong id="env-key-name" style="color:#2ecc71;">--</strong></span>
-              <span id="env-key-status" style="font-size:0.82rem;color:#888;">not loaded</span>
-            </div>
-            <div class="test-result" id="env-load-result"></div>
-          </div>
-          <div id="manual-key-row" class="form-row"><label>API Key</label><input type="password" id="ag-cloud-key" placeholder="sk-..."></div>
-          <div class="form-row"><label>Model</label>
-            <select id="ag-cloud-model">
-              <option value="claude-3-5-haiku-20241022">claude-3-5-haiku (cheapest)</option>
-              <option value="claude-sonnet-4-5-20250929">claude-sonnet-4-5</option>
-            </select>
-          </div>
+      </div>
+
+      <div class="modal-section">
+        <h3>Auto-Bid</h3>
+        <div class="form-row" style="display:flex;align-items:center;gap:0.5rem;">
+          <label style="display:flex;align-items:center;gap:0.4rem;cursor:pointer;">
+            <input type="checkbox" id="ag-auto-bid"> Enable auto-bid on new tasks
+          </label>
         </div>
-        <div class="ai-panel" id="ollama-panel">
-          <div class="form-row-inline">
-            <div class="form-row"><label>Ollama URL</label><input type="text" id="ag-ollama-url" value="http://localhost:11434"></div>
-            <button onclick="detectOllamaModels()">Detect</button>
-          </div>
-          <div class="test-result" id="ollama-detect-result"></div>
-          <div class="form-row" style="margin-top:0.4rem;"><label>Model</label>
-            <select id="ag-ollama-model"><option value="">-- detect models first --</option></select>
-          </div>
+        <div style="display:flex;gap:0.5rem;align-items:flex-end;">
+          <div class="form-row" style="flex:1;margin-bottom:0;"><label>Default Bid Amount (STX)</label><input type="text" id="ag-auto-bid-amount" placeholder="2"></div>
+          <div class="form-row" style="flex:2;margin-bottom:0;"><label>Default Bid Message</label><input type="text" id="ag-auto-bid-message" placeholder="I can complete this task efficiently."></div>
         </div>
       </div>
 
@@ -442,8 +611,13 @@
         <button class="save-btn" onclick="saveAgent()">Save Agent</button>
       </div>
       <div style="margin-top:0.4rem;text-align:center;">
-        <button class="modal-sm-btn" onclick="registerAgentOnServer()" style="background:rgba(46,204,113,0.2);border-color:rgba(46,204,113,0.3);color:#2ecc71;">Register on Server</button>
-        <div class="test-result" id="register-result"></div>
+        <div id="ag-register-row">
+          <button class="modal-sm-btn" onclick="registerAgentOnServer()" style="background:rgba(46,204,113,0.2);border-color:rgba(46,204,113,0.3);color:#2ecc71;">Register on StacksTasker</button>
+          <div class="test-result" id="register-result"></div>
+        </div>
+        <div id="ag-registered-info" style="display:none;font-size:0.85rem;color:#aaa;padding:0.4rem 0;">
+          <span style="color:#2ecc71;">&#10003;</span> Registered on StacksTasker &mdash; ID: <code id="ag-server-id" style="color:#3498db;cursor:pointer;" title="Click to copy" onclick="navigator.clipboard.writeText(this.textContent)"></code>
+        </div>
       </div>
     </div>
   </div>
@@ -480,45 +654,133 @@
     </div>
   </div>
 
+  <!-- Bid Modal -->
+  <div class="modal-overlay" id="bid-modal">
+    <div class="modal" style="width:400px;">
+      <h2>Place Bid <button class="close-btn" onclick="closeBidModal()">&times;</button></h2>
+      <div class="modal-section">
+        <div class="form-row"><label>Bid Amount (STX)</label><input type="text" id="bid-amount" placeholder="0.008"></div>
+        <div class="form-row"><label>Message</label><input type="text" id="bid-message" placeholder="Why you're the best agent for this task..."></div>
+        <div class="form-row"><label>Estimated Time (seconds)</label><input type="number" id="bid-time" min="1" placeholder="e.g. 45"></div>
+      </div>
+      <div class="test-result" id="bid-result"></div>
+      <div class="modal-actions">
+        <button class="cancel-btn" onclick="closeBidModal()">Cancel</button>
+        <button class="save-btn" onclick="submitBid()">Submit Bid</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Modal -->
+  <div class="modal-overlay" id="review-modal">
+    <div class="modal" style="width:420px;">
+      <h2>Leave Review <button class="close-btn" onclick="closeReviewModal()">&times;</button></h2>
+      <div class="modal-section">
+        <div class="form-row"><label>Rating</label>
+          <div class="star-rating" id="star-rating">
+            <span class="star" onclick="setRating(1)">&#9733;</span>
+            <span class="star" onclick="setRating(2)">&#9733;</span>
+            <span class="star" onclick="setRating(3)">&#9733;</span>
+            <span class="star" onclick="setRating(4)">&#9733;</span>
+            <span class="star" onclick="setRating(5)">&#9733;</span>
+          </div>
+          <input type="hidden" id="review-rating" value="0">
+        </div>
+        <div class="form-row"><label>Comment</label>
+          <textarea id="review-comment" placeholder="How did the agent perform?" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:0.45rem 0.65rem;color:#fff;font-family:inherit;font-size:0.92rem;resize:vertical;min-height:60px;"></textarea>
+        </div>
+        <div class="form-row"><label>Agent ID being reviewed</label><input type="text" id="review-agent-id" readonly></div>
+      </div>
+      <div class="test-result" id="review-result"></div>
+      <div class="modal-actions">
+        <button class="cancel-btn" onclick="closeReviewModal()">Cancel</button>
+        <button class="save-btn" onclick="submitReview()">Submit Review</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     // ── AppState ────────────────────────────────────────────────
+    const MODELS = {
+      anthropic: [
+        { id: 'claude-opus-4-6', label: 'Claude Opus 4.6' },
+        { id: 'claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5' },
+        { id: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
+      ],
+      openai: [
+        { id: 'gpt-5.2', label: 'GPT-5.2' },
+        { id: 'gpt-4.1', label: 'GPT-4.1' },
+        { id: 'gpt-4o', label: 'GPT-4o' },
+        { id: 'gpt-4o-mini', label: 'GPT-4o Mini' },
+      ],
+      openrouter: [
+        { id: 'anthropic/claude-opus-4-6', label: 'Claude Opus 4.6' },
+        { id: 'anthropic/claude-sonnet-4-5-20250929', label: 'Claude Sonnet 4.5' },
+        { id: 'openai/gpt-5.2', label: 'GPT-5.2' },
+        { id: 'openai/gpt-4o', label: 'GPT-4o' },
+        { id: 'google/gemini-2.5-pro', label: 'Gemini 2.5 Pro' },
+        { id: 'meta-llama/llama-4-maverick', label: 'Llama 4 Maverick' },
+        { id: 'deepseek/deepseek-r1', label: 'DeepSeek R1' },
+      ],
+    };
+
     const AppState = {
-      // App-wide
       network: 'stacks',
-      apiUrl: 'http://localhost:3003',
+      stxNetwork: 'testnet',  // 'testnet' or 'mainnet'
+      apiUrl: 'https://stackstasker.com',
+      // AI config (app-wide)
+      aiProvider: 'anthropic',
+      aiModel: 'claude-3-5-haiku-20241022',
+      aiApiKey: '',
       ollamaUrl: 'http://localhost:11434',
+      ollamaModel: '',
       connected: false,
-      // Multi-agent
-      agents: [],          // Array of agent objects
-      activeAgentIdx: -1,  // Index into agents[]
-      // Runtime (not persisted)
+      agents: [],
+      activeAgentIdx: -1,
       tasks: [],
       selectedTask: null,
+      selectedTaskBids: [],
+      selectedTaskMessages: [],
       autoRefresh: true,
       pollTimer: null,
       executing: false,
+      reviewRating: 0,
+      _seenTaskIds: new Set(),
+      _autoBidReady: false,
+      _wsConnected: false,
+      _ws: null,
+      _balances: {},
+      globalConsole: true,
+      _reviewedTasks: new Set(),
     };
 
     function makeAgent(overrides = {}) {
       return {
         id: crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2),
-        name: '', wallet: '', bio: '', capabilities: ['summarization','research','analysis'],
+        name: '', wallet: '', bio: '', avatar: '', capabilities: ['coding','data-pipeline','other'],
         aiMode: 'cloud', cloudProvider: 'anthropic', cloudKey: '', useEnvKey: false,
         cloudModel: 'claude-3-5-haiku-20241022',
         ollamaUrl: 'http://localhost:11434', ollamaModel: '',
         serverId: null, profile: null,
+        autoBid: false, autoBidAmount: 2, autoBidMessage: 'I can complete this task efficiently.',
         taskHistory: [], consoleLogs: [],
         ...overrides,
       };
     }
-    function A() { return AppState.agents[AppState.activeAgentIdx] || null; } // active agent shorthand
+    function A() { return AppState.agents[AppState.activeAgentIdx] || null; }
 
     function loadState() {
       try {
         const s = localStorage.getItem('x402-app-state');
-        if (s) { const p = JSON.parse(s); Object.assign(AppState, { network: p.network, apiUrl: p.apiUrl, ollamaUrl: p.ollamaUrl, autoRefresh: p.autoRefresh !== undefined ? p.autoRefresh : true }); }
+        if (s) { const p = JSON.parse(s); Object.assign(AppState, {
+          network: p.network, apiUrl: p.apiUrl || 'https://stackstasker.com',
+          stxNetwork: p.stxNetwork || 'testnet',
+          aiProvider: p.aiProvider || 'anthropic', aiModel: p.aiModel || 'claude-3-5-haiku-20241022',
+          aiApiKey: p.aiApiKey || '', ollamaUrl: p.ollamaUrl, ollamaModel: p.ollamaModel || '',
+          autoRefresh: p.autoRefresh !== undefined ? p.autoRefresh : true,
+        }); }
         const ag = localStorage.getItem('x402-agents');
-        if (ag) AppState.agents = JSON.parse(ag);
+        if (ag) { AppState.agents = JSON.parse(ag); AppState.agents.forEach(a => { if (!a.consoleLogs) a.consoleLogs = []; if (!a.taskHistory) a.taskHistory = []; }); }
         const idx = localStorage.getItem('x402-active-agent');
         if (idx !== null) AppState.activeAgentIdx = parseInt(idx);
         if (AppState.activeAgentIdx >= AppState.agents.length) AppState.activeAgentIdx = AppState.agents.length > 0 ? 0 : -1;
@@ -548,34 +810,92 @@
     }
     function saveAll() {
       try {
-        localStorage.setItem('x402-app-state', JSON.stringify({ network: AppState.network, apiUrl: AppState.apiUrl, ollamaUrl: AppState.ollamaUrl, autoRefresh: AppState.autoRefresh }));
-        // Strip cloudKey for agents using .env
-        const safe = AppState.agents.map(a => ({ ...a, cloudKey: '', profile: null }));
+        localStorage.setItem('x402-app-state', JSON.stringify({
+          network: AppState.network, apiUrl: AppState.apiUrl,
+          stxNetwork: AppState.stxNetwork,
+          aiProvider: AppState.aiProvider, aiModel: AppState.aiModel, aiApiKey: AppState.aiApiKey,
+          ollamaUrl: AppState.ollamaUrl, ollamaModel: AppState.ollamaModel,
+          autoRefresh: AppState.autoRefresh,
+        }));
+        const safe = AppState.agents.map(a => ({ ...a, cloudKey: '', profile: null, _privateKey: undefined, consoleLogs: undefined }));
         localStorage.setItem('x402-agents', JSON.stringify(safe));
         localStorage.setItem('x402-active-agent', AppState.activeAgentIdx.toString());
       } catch(e) { /* ignore */ }
     }
 
     // ── Utilities ───────────────────────────────────────────────
-    function log(message, type = '') {
+    function _appendConsoleLine(time, content, type, agentName) {
       const con = document.getElementById('console');
-      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
       const line = document.createElement('div');
       line.className = 'console-line ' + type;
-      line.innerHTML = `<span class="timestamp">[${time}]</span>${escapeHtml(message)}`;
+      const prefix = agentName ? `<span style="color:#3498db;font-weight:bold;margin-right:0.3rem;">[${escapeHtml(agentName)}]</span>` : '';
+      line.innerHTML = `<span class="timestamp">[${time}]</span>${prefix}${content}`;
       con.appendChild(line);
       con.scrollTop = con.scrollHeight;
-      // Save to active agent's console log
+    }
+    function log(message, type = '') {
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
       const a = A();
+      _appendConsoleLine(time, escapeHtml(message), type, AppState.globalConsole ? a?.name : '');
       if (a) a.consoleLogs.push({ time, message, type });
     }
     function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
-    function clearConsole() { document.getElementById('console').innerHTML = ''; log('Console cleared.', 'info'); }
+    function fmtStx(n) { const v = Number(n); return v % 1 === 0 ? v.toString() : v.toFixed(2).replace(/\.?0+$/, ''); }
+    function logHtml(html, type = '') {
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+      const a = A();
+      _appendConsoleLine(time, html, type, AppState.globalConsole ? a?.name : '');
+      if (a) a.consoleLogs.push({ time, message: html, type, raw: true });
+    }
+    // Log to a specific agent's console (used for non-active agents)
+    function logToAgent(agent, message, type, raw) {
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+      agent.consoleLogs.push({ time, message, type, raw: !!raw });
+      // If global mode, also write to DOM
+      if (AppState.globalConsole) {
+        const content = raw ? message : escapeHtml(message);
+        _appendConsoleLine(time, content, type, agent.name);
+      }
+    }
+    function clearConsole() {
+      if (AppState.globalConsole) { AppState.agents.forEach(a => a.consoleLogs = []); }
+      else { const a = A(); if (a) a.consoleLogs = []; }
+      saveAll(); document.getElementById('console').innerHTML = '';
+    }
+    function toggleGlobalConsole() {
+      AppState.globalConsole = document.getElementById('global-console-toggle').checked;
+      renderConsole();
+    }
+    function renderConsole() {
+      const con = document.getElementById('console');
+      con.innerHTML = '';
+      if (AppState.globalConsole) {
+        // Merge all agents' logs sorted by time
+        const all = [];
+        AppState.agents.forEach(a => {
+          (a.consoleLogs || []).forEach(l => all.push({ ...l, agentName: a.name }));
+        });
+        all.sort((a, b) => a.time < b.time ? -1 : a.time > b.time ? 1 : 0);
+        all.forEach(l => {
+          const content = l.raw ? l.message : escapeHtml(l.message);
+          _appendConsoleLine(l.time, content, l.type, l.agentName);
+        });
+      } else {
+        const a = A();
+        if (a && a.consoleLogs.length) {
+          a.consoleLogs.forEach(l => {
+            const content = l.raw ? l.message : escapeHtml(l.message);
+            _appendConsoleLine(l.time, content, l.type, '');
+          });
+        }
+      }
+      con.scrollTop = con.scrollHeight;
+    }
     function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
     // ── Network ────────────────────────────────────────────────
     const NET = {
-      stacks:   { label:'Stacks (BTC)', currency:'STX',  ph:'ST2W4FEZHSEECBGX52SNBWNR9HC596QF34RHQER3R' },
+      stacks:   { label:'Stacks STX (Bitcoin Network)', currency:'STX',  ph:'ST2W4FEZHSEECBGX52SNBWNR9HC596QF34RHQER3R' },
       solana:   { label:'Solana',       currency:'SOL',  ph:'7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU' },
       evm:      { label:'EVM (Ethereum)',currency:'ETH',  ph:'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18' },
       base:     { label:'Base',         currency:'ETH',  ph:'0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18' },
@@ -587,31 +907,53 @@
 
     // ── API Client ─────────────────────────────────────────────
     const API = {
-      _headers() {
+      _headers(walletOverride) {
         const h = { 'Content-Type': 'application/json' };
-        const a = A();
-        if (a?.wallet) { h['X-Wallet-Address'] = a.wallet; h['X-Wallet-Timestamp'] = Date.now().toString(); h['X-Wallet-Signature'] = 'agent-console-sig'; }
+        const w = walletOverride || A()?.wallet;
+        if (w) { h['X-Wallet-Address'] = w; h['X-Wallet-Timestamp'] = new Date().toISOString(); h['X-Wallet-Signature'] = 'agent-console-sig'; }
         return h;
       },
-      async _fetch(path, opts = {}) {
+      async _fetch(path, opts = {}, walletOverride) {
         const url = AppState.apiUrl.replace(/\/+$/, '') + path;
-        const res = await fetch(url, { headers: this._headers(), ...opts });
+        const res = await fetch(url, { headers: this._headers(walletOverride), ...opts });
         if (!res.ok) { const b = await res.text().catch(()=>''); throw new Error(`HTTP ${res.status}: ${b.slice(0,200)}`); }
         return res.json();
       },
+      // Platform
       health()            { return this._fetch('/health'); },
+      stats()             { return this._fetch('/stats'); },
+      // Agents
       registerAgent(data) { return this._fetch('/agents/register', { method:'POST', body:JSON.stringify(data) }); },
+      listAgents()        { return this._fetch('/agents'); },
       getAgentProfile(id) { return this._fetch(`/agents/${encodeURIComponent(id)}/profile`); },
-      listTasks(status='open') { return this._fetch(`/tasks?status=${status}`); },
+      updateAgent(id, data) { return this._fetch(`/agents/${encodeURIComponent(id)}`, { method:'PUT', body:JSON.stringify(data) }); },
+      getAgentReviews(id) { return this._fetch(`/agents/${encodeURIComponent(id)}/reviews`); },
+      submitReview(id, data) { return this._fetch(`/agents/${encodeURIComponent(id)}/review`, { method:'POST', body:JSON.stringify(data) }); },
+      // Tasks
+      listTasks(status='open', category='') {
+        let q = status ? `?status=${status}` : '?';
+        if (category) q += `&category=${category}`;
+        q += `&network=${AppState.stxNetwork}`;
+        return this._fetch(`/tasks${q}`);
+      },
       getTask(id)         { return this._fetch(`/tasks/${id}`); },
-      acceptTask(id)      { const a=A(); return this._fetch(`/tasks/${id}/accept`, { method:'POST', body:JSON.stringify({ agentId: a?.serverId||a?.wallet }) }); },
-      startTask(id)       { return this._fetch(`/tasks/${id}/start`, { method:'POST' }); },
-      submitResult(id, result) { const a=A(); return this._fetch(`/tasks/${id}/submit`, { method:'POST', body:JSON.stringify({ result, agentId: a?.serverId||a?.wallet }) }); },
-      placeBid(id, amount) { const a=A(); return this._fetch(`/tasks/${id}/bid`, { method:'POST', body:JSON.stringify({ amount, agentId: a?.serverId||a?.wallet }) }); },
-      createTask(data) { return this._fetch('/tasks', { method:'POST', body:JSON.stringify(data) }); },
+      createTask(data)    { return this._fetch('/tasks', { method:'POST', body:JSON.stringify({ ...data, network: AppState.stxNetwork }) }); },
+      acceptTask(id, agentId) { return this._fetch(`/tasks/${id}/accept`, { method:'POST', body:JSON.stringify({ agentId }) }); },
+      startTask(id, agentId)  { return this._fetch(`/tasks/${id}/start`, { method:'POST', body:JSON.stringify({ agentId }) }); },
+      submitResult(id, result, agentId) { return this._fetch(`/tasks/${id}/submit`, { method:'POST', body:JSON.stringify({ result, agentId }) }); },
+      approveTask(id)     { return this._fetch(`/tasks/${id}/approve`, { method:'POST' }); },
+      rejectTask(id, reason) { const a=A(); return this._fetch(`/tasks/${id}/reject`, { method:'POST', body:JSON.stringify({ posterAddress: a?.wallet, reason }) }); },
+      cancelTask(id)      { const a=A(); return this._fetch(`/tasks/${id}/cancel`, { method:'POST', body:JSON.stringify({ posterAddress: a?.wallet }) }); },
+      // Bids
+      placeBid(id, data)  { return this._fetch(`/tasks/${id}/bid`, { method:'POST', body:JSON.stringify(data) }); },
+      listBids(id)        { return this._fetch(`/tasks/${id}/bids`); },
+      acceptBid(taskId, bidId) { const a=A(); return this._fetch(`/tasks/${taskId}/bids/${bidId}/accept`, { method:'POST', body:JSON.stringify({ posterAddress: a?.wallet }) }); },
+      // Messages
+      postMessage(taskId, body) { const a=A(); return this._fetch(`/tasks/${taskId}/messages`, { method:'POST', body:JSON.stringify({ senderAddress: a?.wallet, body }) }); },
+      getMessages(taskId)  { return this._fetch(`/tasks/${taskId}/messages`); },
     };
 
-    // ── AI Engine ──────────────────────────────────────────────
+    // ── AI Engine (uses app-wide settings) ─────────────────────
     const AIEngine = {
       buildPrompt(task) {
         const cat = (task.category||'').toLowerCase();
@@ -629,34 +971,45 @@
         return { system: sys, user };
       },
       async complete(task) {
-        const a = A(); if (!a) throw new Error('No active agent');
-        if (a.aiMode === 'ollama') return this._ollama(task, a);
-        return this._cloud(task, a);
+        // Use Ollama if provider not set but ollama model is set, or if no cloud key
+        if (AppState.ollamaModel && !AppState.aiApiKey) return this._ollama(task);
+        return this._cloud(task);
       },
-      async _cloud(task, a) {
+      _getEndpoint() {
+        const p = AppState.aiProvider;
+        if (p === 'anthropic') return { url: 'https://api.anthropic.com/v1/messages', type: 'anthropic' };
+        if (p === 'openai') return { url: 'https://api.openai.com/v1/chat/completions', type: 'openai' };
+        if (p === 'openrouter') return { url: 'https://openrouter.ai/api/v1/chat/completions', type: 'openai' };
+        return { url: 'https://api.anthropic.com/v1/messages', type: 'anthropic' };
+      },
+      async _cloud(task) {
         const { system, user } = this.buildPrompt(task);
-        const key = a.cloudKey; if (!key) throw new Error('No API key. Edit agent settings.');
-        if (a.cloudProvider === 'anthropic') {
-          const r = await fetch('https://api.anthropic.com/v1/messages', {
+        const key = AppState.aiApiKey; if (!key) throw new Error('No API key configured. Go to Settings → AI Provider to add a key, or configure Ollama for local AI.');
+        const { url, type } = this._getEndpoint();
+        if (type === 'anthropic') {
+          const r = await fetch(url, {
             method:'POST', headers:{ 'Content-Type':'application/json', 'x-api-key':key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
-            body: JSON.stringify({ model:a.cloudModel, max_tokens:2048, system, messages:[{role:'user',content:user}] }),
+            body: JSON.stringify({ model: AppState.aiModel, max_tokens:2048, system, messages:[{role:'user',content:user}] }),
           });
           if (!r.ok) { const e=await r.text().catch(()=>''); throw new Error(`Anthropic ${r.status}: ${e.slice(0,200)}`); }
           const d = await r.json(); return d.content.map(b=>b.text).join('\n');
         }
-        const r = await fetch('https://api.openai.com/v1/chat/completions', {
-          method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':`Bearer ${key}` },
-          body: JSON.stringify({ model:a.cloudModel, max_tokens:2048, messages:[{role:'system',content:system},{role:'user',content:user}] }),
+        // OpenAI / OpenRouter compatible
+        const headers = { 'Content-Type':'application/json', 'Authorization':`Bearer ${key}` };
+        if (AppState.aiProvider === 'openrouter') headers['HTTP-Referer'] = window.location.href;
+        const r = await fetch(url, {
+          method:'POST', headers,
+          body: JSON.stringify({ model: AppState.aiModel, max_tokens:2048, messages:[{role:'system',content:system},{role:'user',content:user}] }),
         });
-        if (!r.ok) { const e=await r.text().catch(()=>''); throw new Error(`OpenAI ${r.status}: ${e.slice(0,200)}`); }
+        if (!r.ok) { const e=await r.text().catch(()=>''); throw new Error(`${AppState.aiProvider} ${r.status}: ${e.slice(0,200)}`); }
         const d = await r.json(); return d.choices[0].message.content;
       },
-      async _ollama(task, a) {
+      async _ollama(task) {
         const { system, user } = this.buildPrompt(task);
-        const url = (a.ollamaUrl||AppState.ollamaUrl).replace(/\/+$/,'') + '/api/chat';
-        if (!a.ollamaModel) throw new Error('No Ollama model selected.');
+        const url = AppState.ollamaUrl.replace(/\/+$/,'') + '/api/chat';
+        if (!AppState.ollamaModel) throw new Error('No Ollama model selected. Go to Settings.');
         const r = await fetch(url, { method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ model:a.ollamaModel, stream:false, messages:[{role:'system',content:system},{role:'user',content:user}] }),
+          body: JSON.stringify({ model: AppState.ollamaModel, stream:false, messages:[{role:'system',content:system},{role:'user',content:user}] }),
         });
         if (!r.ok) { const e=await r.text().catch(()=>''); throw new Error(`Ollama ${r.status}: ${e.slice(0,200)}`); }
         const d = await r.json(); return d.message?.content||'';
@@ -666,20 +1019,152 @@
         if (!r.ok) throw new Error(`Ollama ${r.status}`);
         const d = await r.json(); return (d.models||[]).map(m=>m.name||m.model);
       },
+      async testKey() {
+        const key = AppState.aiApiKey; if (!key) throw new Error('No API key entered.');
+        const { url, type } = this._getEndpoint();
+        if (type === 'anthropic') {
+          const r = await fetch(url, {
+            method:'POST', headers:{ 'Content-Type':'application/json', 'x-api-key':key, 'anthropic-version':'2023-06-01', 'anthropic-dangerous-direct-browser-access':'true' },
+            body: JSON.stringify({ model: AppState.aiModel, max_tokens:16, messages:[{role:'user',content:'Say OK'}] }),
+          });
+          if (!r.ok) { const e=await r.text().catch(()=>''); throw new Error(`${r.status}: ${e.slice(0,150)}`); }
+          return true;
+        }
+        const headers = { 'Content-Type':'application/json', 'Authorization':`Bearer ${key}` };
+        if (AppState.aiProvider === 'openrouter') headers['HTTP-Referer'] = window.location.href;
+        const r = await fetch(url, {
+          method:'POST', headers,
+          body: JSON.stringify({ model: AppState.aiModel, max_tokens:16, messages:[{role:'user',content:'Say OK'}] }),
+        });
+        if (!r.ok) { const e=await r.text().catch(()=>''); throw new Error(`${r.status}: ${e.slice(0,150)}`); }
+        return true;
+      },
     };
 
     // ── App Settings ───────────────────────────────────────────
+    function populateModelSelect(provider, selectId, currentModel) {
+      const sel = document.getElementById(selectId);
+      const models = MODELS[provider] || [];
+      sel.innerHTML = models.map(m => `<option value="${m.id}"${m.id===currentModel?' selected':''}>${m.label}</option>`).join('');
+    }
+    function onProviderChange() {
+      const provider = document.getElementById('setting-provider').value;
+      populateModelSelect(provider, 'setting-model', '');
+      const ph = { anthropic:'sk-ant-...', openai:'sk-...', openrouter:'sk-or-...' };
+      document.getElementById('setting-api-key').placeholder = ph[provider] || 'API key...';
+      // Auto-load matching key from .env
+      document.getElementById('setting-api-key').value = '';
+      document.getElementById('test-key-result').textContent = '';
+      loadEnvApiKey();
+    }
     function openAppSettings() {
       document.getElementById('setting-api-url').value = AppState.apiUrl;
+      document.getElementById('setting-provider').value = AppState.aiProvider;
+      populateModelSelect(AppState.aiProvider, 'setting-model', AppState.aiModel);
+      const keyInp = document.getElementById('setting-api-key');
+      if (AppState.aiApiKey) {
+        const k = AppState.aiApiKey;
+        keyInp.value = k.slice(0, 7) + '******' + k.slice(-4);
+        keyInp.dataset.masked = 'true';
+        keyInp.dataset.realKey = k;
+      } else {
+        keyInp.value = '';
+        keyInp.dataset.masked = '';
+        keyInp.dataset.realKey = '';
+      }
+      keyInp.type = 'text';
+      document.getElementById('key-vis-btn').textContent = 'Show';
       document.getElementById('setting-ollama-url').value = AppState.ollamaUrl;
+      if (AppState.ollamaModel) {
+        const sel = document.getElementById('setting-ollama-model');
+        if (!Array.from(sel.options).some(o=>o.value===AppState.ollamaModel)) {
+          sel.innerHTML = `<option value="${AppState.ollamaModel}">${AppState.ollamaModel}</option>`;
+        }
+        sel.value = AppState.ollamaModel;
+      }
       document.getElementById('test-conn-result').textContent = '';
+      document.getElementById('test-key-result').textContent = '';
+      document.getElementById('test-ollama-result').textContent = '';
+      document.getElementById('detect-ollama-result').textContent = '';
+      onProviderChange();
+      // Re-select the saved model after provider change repopulated
+      const modelSel = document.getElementById('setting-model');
+      if (Array.from(modelSel.options).some(o=>o.value===AppState.aiModel)) modelSel.value = AppState.aiModel;
       document.getElementById('app-settings-modal').classList.add('open');
+      // Auto-load API key from .env if empty
+      if (!document.getElementById('setting-api-key').value) {
+        loadEnvApiKey();
+      }
+    }
+    async function loadEnvApiKey() {
+      const el = document.getElementById('test-key-result');
+      const provider = document.getElementById('setting-provider').value;
+      const varName = provider === 'openai' ? 'OPENAI_API_KEY' : provider === 'openrouter' ? 'OPENROUTER_API_KEY' : 'ANTHROPIC_API_KEY';
+      try {
+        const res = await fetch('/.env'); if (!res.ok) return;
+        const text = await res.text();
+        for (const line of text.split(/\r?\n/)) {
+          const t = line.trim(); if (!t || t.startsWith('#')) continue;
+          const eq = t.indexOf('='); if (eq === -1) continue;
+          const k = t.slice(0, eq).trim(); let v = t.slice(eq + 1).trim();
+          if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) v = v.slice(1, -1);
+          if (k === varName) {
+            document.getElementById('setting-api-key').value = v;
+            el.textContent = 'Loaded ' + varName + ' from .env'; el.className = 'test-result ok';
+            return;
+          }
+        }
+      } catch(e) { /* .env not available */ }
     }
     function closeAppSettings() { document.getElementById('app-settings-modal').classList.remove('open'); }
+    function _getApiKeyValue() {
+      const inp = document.getElementById('setting-api-key');
+      return inp.dataset.masked === 'true' ? (inp.dataset.realKey || '') : inp.value.trim();
+    }
     function saveAppSettings() {
-      AppState.apiUrl = document.getElementById('setting-api-url').value.trim() || 'http://localhost:3003';
+      AppState.apiUrl = document.getElementById('setting-api-url').value.trim() || 'https://stackstasker.com';
+      AppState.aiProvider = document.getElementById('setting-provider').value;
+      AppState.aiModel = document.getElementById('setting-model').value;
+      AppState.aiApiKey = _getApiKeyValue();
       AppState.ollamaUrl = document.getElementById('setting-ollama-url').value.trim() || 'http://localhost:11434';
-      saveAll(); closeAppSettings(); checkConnection(); log('App settings saved.', 'success');
+      AppState.ollamaModel = document.getElementById('setting-ollama-model').value;
+      saveAll(); closeAppSettings(); checkConnection();
+      const label = (MODELS[AppState.aiProvider]||[]).find(m=>m.id===AppState.aiModel)?.label || AppState.aiModel;
+      log(`Settings saved. Model: ${label} (${AppState.aiProvider})`, 'success');
+    }
+    function toggleKeyVisibility() {
+      const inp = document.getElementById('setting-api-key');
+      const btn = document.getElementById('key-vis-btn');
+      if (inp.dataset.masked === 'true') {
+        inp.value = inp.dataset.realKey;
+        inp.dataset.masked = '';
+        btn.textContent = 'Hide';
+      } else {
+        const k = inp.value.trim();
+        if (k && k.length > 11) {
+          inp.dataset.realKey = k;
+          inp.value = k.slice(0, 7) + '******' + k.slice(-4);
+          inp.dataset.masked = 'true';
+        }
+        btn.textContent = 'Show';
+      }
+    }
+    async function testApiKey() {
+      const el = document.getElementById('test-key-result');
+      // Temporarily apply the form values so testKey uses them
+      const prevProvider = AppState.aiProvider, prevModel = AppState.aiModel, prevKey = AppState.aiApiKey;
+      AppState.aiProvider = document.getElementById('setting-provider').value;
+      AppState.aiModel = document.getElementById('setting-model').value;
+      AppState.aiApiKey = _getApiKeyValue();
+      el.textContent = 'Testing...'; el.className = 'test-result checking';
+      try {
+        await AIEngine.testKey();
+        el.textContent = 'API key valid! Model responded.'; el.className = 'test-result ok';
+      } catch(e) {
+        el.textContent = 'Failed: ' + e.message; el.className = 'test-result fail';
+      }
+      // Restore if not yet saved
+      AppState.aiProvider = prevProvider; AppState.aiModel = prevModel; AppState.aiApiKey = prevKey;
     }
     async function testConnection() {
       const el = document.getElementById('test-conn-result');
@@ -688,6 +1173,29 @@
         const r = await fetch(document.getElementById('setting-api-url').value.trim().replace(/\/+$/,'') + '/health');
         if (r.ok) { const d=await r.json().catch(()=>({})); el.textContent='Connected! '+(d.status||''); el.className='test-result ok'; }
         else { el.textContent=`HTTP ${r.status}`; el.className='test-result fail'; }
+      } catch(e) { el.textContent='Failed: '+e.message; el.className='test-result fail'; }
+    }
+    async function testOllamaConnection() {
+      const el = document.getElementById('test-ollama-result');
+      const url = document.getElementById('setting-ollama-url').value.trim();
+      el.textContent = 'Testing...'; el.className = 'test-result checking';
+      try {
+        const r = await fetch(url.replace(/\/+$/,'') + '/api/tags');
+        if (r.ok) { const d=await r.json(); el.textContent='Connected! '+(d.models||[]).length+' model(s) available'; el.className='test-result ok'; }
+        else { el.textContent=`HTTP ${r.status}`; el.className='test-result fail'; }
+      } catch(e) { el.textContent='Failed: '+e.message+' — is Ollama running?'; el.className='test-result fail'; }
+    }
+    async function detectSettingsOllamaModels() {
+      const el = document.getElementById('detect-ollama-result');
+      const url = document.getElementById('setting-ollama-url').value.trim();
+      el.textContent = 'Detecting...'; el.className = 'test-result checking';
+      try {
+        const models = await AIEngine.detectModels(url);
+        if (!models.length) { el.textContent='No models found.'; el.className='test-result fail'; return; }
+        const sel = document.getElementById('setting-ollama-model');
+        sel.innerHTML = '<option value="">-- none (use cloud) --</option>' + models.map(m=>`<option value="${m}">${m}</option>`).join('');
+        if (AppState.ollamaModel) sel.value = AppState.ollamaModel;
+        el.textContent=`Found ${models.length} model(s)`; el.className='test-result ok';
       } catch(e) { el.textContent='Failed: '+e.message; el.className='test-result fail'; }
     }
 
@@ -723,96 +1231,173 @@
       }
     }
 
+    // ── Bid Modal ──────────────────────────────────────────────
+    function openBidModal() {
+      if (!AppState.selectedTask) return;
+      document.getElementById('bid-amount').value = '';
+      document.getElementById('bid-message').value = '';
+      document.getElementById('bid-time').value = '';
+      document.getElementById('bid-result').textContent = '';
+      document.getElementById('bid-modal').classList.add('open');
+    }
+    function closeBidModal() { document.getElementById('bid-modal').classList.remove('open'); }
+    async function submitBid() {
+      const el = document.getElementById('bid-result');
+      const task = AppState.selectedTask; const a = A();
+      if (!task || !a) return;
+      const amount = document.getElementById('bid-amount').value.trim();
+      const message = document.getElementById('bid-message').value.trim();
+      const estimatedTime = document.getElementById('bid-time').value.trim();
+      if (!amount || isNaN(Number(amount))) { el.textContent = 'Valid amount required.'; el.className = 'test-result fail'; return; }
+      el.textContent = 'Placing bid...'; el.className = 'test-result checking';
+      try {
+        const data = { agentId: a.serverId || a.wallet, amount: Number(amount), message };
+        if (estimatedTime) data.estimatedTime = `${estimatedTime} seconds`;
+        await API.placeBid(task.id, data);
+        el.textContent = 'Bid placed!'; el.className = 'test-result ok';
+        log(`✅ Bid placed: ${amount} ${getCurrency()} on "${task.title}"`, 'success');
+        setTimeout(() => { closeBidModal(); loadTaskBids(task.id); }, 600);
+      } catch(e) {
+        el.textContent = 'Error: ' + e.message; el.className = 'test-result fail';
+        log('Bid failed: ' + e.message, 'error');
+      }
+    }
+
+    // ── Review Modal ───────────────────────────────────────────
+    function openReviewModal() {
+      const task = AppState.selectedTask; if (!task) return;
+      const agentId = task.assignedAgent || task.agentId || '';
+      document.getElementById('review-agent-id').value = agentId;
+      document.getElementById('review-comment').value = '';
+      document.getElementById('review-rating').value = '0';
+      AppState.reviewRating = 0;
+      document.querySelectorAll('#star-rating .star').forEach(s => s.classList.remove('active'));
+      document.getElementById('review-result').textContent = '';
+      document.getElementById('review-modal').classList.add('open');
+    }
+    function closeReviewModal() { document.getElementById('review-modal').classList.remove('open'); }
+    function setRating(n) {
+      AppState.reviewRating = n;
+      document.getElementById('review-rating').value = n;
+      document.querySelectorAll('#star-rating .star').forEach((s, i) => {
+        s.classList.toggle('active', i < n);
+      });
+    }
+    async function submitReview() {
+      const el = document.getElementById('review-result');
+      const task = AppState.selectedTask; const a = A();
+      const agentId = document.getElementById('review-agent-id').value.trim();
+      const rating = AppState.reviewRating;
+      const comment = document.getElementById('review-comment').value.trim();
+      if (!agentId) { el.textContent = 'Agent ID required.'; el.className = 'test-result fail'; return; }
+      if (!rating) { el.textContent = 'Select a rating (1-5 stars).'; el.className = 'test-result fail'; return; }
+      el.textContent = 'Submitting review...'; el.className = 'test-result checking';
+      try {
+        await API.submitReview(agentId, { taskId: task.id, rating, comment, reviewerAddress: a?.wallet });
+        el.textContent = 'Review submitted!'; el.className = 'test-result ok';
+        log(`Review submitted: ${rating} stars for agent ${agentId}`, 'success');
+        setTimeout(() => closeReviewModal(), 600);
+      } catch(e) {
+        el.textContent = 'Error: ' + e.message; el.className = 'test-result fail';
+        log('Review failed: ' + e.message, 'error');
+      }
+    }
+
     // ── Agent Settings ─────────────────────────────────────────
-    let editingAgentIdx = -1; // -1 = new agent
+    const AVATARS = [
+      'avatars/InventiveLobster_TP-5Y46JB5Q_avatar.png',
+      'avatars/Chico_TP-K9RGXCGY_avatar.png',
+      'avatars/CuriousOctopus_TP-E1LRXU6Q_avatar.png',
+    ];
+    let editingAgentIdx = -1;
+    function renderAvatarPicker(selected) {
+      const picker = document.getElementById('avatar-picker');
+      picker.innerHTML = AVATARS.map(src => {
+        const sel = src === selected ? ' selected' : '';
+        return `<div class="avatar-option${sel}" onclick="pickAvatar('${src}')"><img src="${src}"></div>`;
+      }).join('');
+      document.getElementById('ag-avatar').value = selected || '';
+    }
+    function pickAvatar(src) {
+      document.getElementById('ag-avatar').value = src;
+      document.querySelectorAll('#avatar-picker .avatar-option').forEach(el => {
+        el.classList.toggle('selected', el.querySelector('img').src.endsWith(src));
+      });
+    }
     function openAgentSettings(idx) {
       editingAgentIdx = idx;
       const a = idx >= 0 ? AppState.agents[idx] : makeAgent();
       document.getElementById('agent-modal-title').textContent = idx >= 0 ? 'Edit Agent' : 'New Agent';
       document.getElementById('ag-delete-btn').style.display = idx >= 0 ? '' : 'none';
+      renderAvatarPicker(a.avatar || '');
       document.getElementById('ag-name').value = a.name;
       document.getElementById('ag-wallet').value = a.wallet;
       document.getElementById('ag-wallet').placeholder = (NET[AppState.network]||NET.stacks).ph;
-      document.getElementById('ag-bio').value = a.bio;
-      document.querySelectorAll('#ag-caps input').forEach(cb => { cb.checked = a.capabilities.includes(cb.value); });
-      document.querySelector(`input[name="ag-ai-mode"][value="${a.aiMode}"]`).checked = true;
-      switchAIMode(a.aiMode);
-      document.getElementById('ag-provider').value = a.cloudProvider;
-      updateModelOptions();
-      document.getElementById('ag-cloud-key').value = a.cloudKey;
-      document.getElementById('ag-use-env').checked = a.useEnvKey;
-      toggleEnvKey();
-      document.getElementById('ag-cloud-model').value = a.cloudModel;
-      document.getElementById('ag-ollama-url').value = a.ollamaUrl || AppState.ollamaUrl;
-      if (a.ollamaModel) {
-        const sel = document.getElementById('ag-ollama-model');
-        if (!Array.from(sel.options).some(o=>o.value===a.ollamaModel)) sel.innerHTML=`<option value="${a.ollamaModel}">${a.ollamaModel}</option>`;
-        sel.value = a.ollamaModel;
+      // Hide wallet input + generate button when wallet already exists
+      const walletInputRow = document.getElementById('ag-wallet-input-row');
+      walletInputRow.style.display = a.wallet ? 'none' : '';
+      const genBtn = document.getElementById('ag-generate-wallet-btn');
+      genBtn.disabled = !!a.wallet;
+      genBtn.title = a.wallet ? 'Wallet already generated' : '';
+      // Show both testnet and mainnet addresses
+      const addrDisplay = document.getElementById('wallet-addresses-display');
+      const testnetEl = document.getElementById('ag-wallet-testnet');
+      const mainnetEl = document.getElementById('ag-wallet-mainnet');
+      if (a.wallet) {
+        addrDisplay.style.display = '';
+        testnetEl.textContent = a._walletTestnet || (a.wallet.startsWith('ST') ? a.wallet : '—');
+        mainnetEl.textContent = a._walletMainnet || (a.wallet.startsWith('SP') ? a.wallet : '—');
+        // Compute missing address on-demand
+        if (!a._walletTestnet && a.wallet.startsWith('ST')) a._walletTestnet = a.wallet;
+        if (!a._walletMainnet && a.wallet.startsWith('SP')) a._walletMainnet = a.wallet;
+        if (a.wallet && (!a._walletTestnet || !a._walletMainnet)) {
+          const addr = a._walletTestnet || a._walletMainnet || a.wallet;
+          const needMainnet = !a._walletMainnet;
+          convertStxAddress(addr, needMainnet).then(converted => {
+            if (needMainnet) { a._walletMainnet = converted; mainnetEl.textContent = converted; }
+            else { a._walletTestnet = converted; testnetEl.textContent = converted; }
+            saveAll();
+          }).catch(() => {});
+        }
+      } else {
+        addrDisplay.style.display = 'none';
       }
+      document.getElementById('ag-bio').value = a.bio;
+      // Sync capabilities checkboxes — handle missing/undefined capabilities
+      const caps = Array.isArray(a.capabilities) ? a.capabilities : [];
+      document.querySelectorAll('#ag-caps input').forEach(cb => { cb.checked = caps.includes(cb.value); });
+      // Show current model in the info bar
+      const modelLabel = (MODELS[AppState.aiProvider]||[]).find(m=>m.id===AppState.aiModel)?.label || AppState.aiModel || 'Not configured';
+      document.getElementById('ag-current-model').textContent = modelLabel + ' (' + AppState.aiProvider + ')';
+      document.getElementById('ag-auto-bid').checked = !!a.autoBid;
+      document.getElementById('ag-auto-bid-amount').value = a.autoBidAmount ?? 2;
+      document.getElementById('ag-auto-bid-message').value = a.autoBidMessage || 'I can complete this task efficiently.';
       document.getElementById('wallet-secret-area').style.display = 'none';
-      document.getElementById('register-result').textContent = '';
+      // Show/hide register button vs registered info
+      const registerRow = document.getElementById('ag-register-row');
+      const registeredInfo = document.getElementById('ag-registered-info');
+      if (a.serverId) {
+        registerRow.style.display = 'none';
+        registeredInfo.style.display = '';
+        document.getElementById('ag-server-id').textContent = a.serverId;
+      } else {
+        registerRow.style.display = '';
+        registeredInfo.style.display = 'none';
+        document.getElementById('register-result').textContent = '';
+      }
       document.getElementById('agent-settings-modal').classList.add('open');
     }
     function closeAgentSettings() { document.getElementById('agent-settings-modal').classList.remove('open'); }
-    function switchAIMode(m) {
-      document.getElementById('cloud-panel').classList.toggle('active', m==='cloud');
-      document.getElementById('ollama-panel').classList.toggle('active', m==='ollama');
-    }
-    function updateModelOptions() {
-      const p = document.getElementById('ag-provider').value;
-      const s = document.getElementById('ag-cloud-model');
-      if (document.getElementById('ag-use-env').checked) { document.getElementById('env-key-name').textContent = getEnvKeyName(); loadEnvKey(); }
-      s.innerHTML = p==='anthropic'
-        ? '<option value="claude-3-5-haiku-20241022">claude-3-5-haiku (cheapest)</option><option value="claude-sonnet-4-5-20250929">claude-sonnet-4-5</option>'
-        : '<option value="gpt-4o-mini">gpt-4o-mini (cheapest)</option><option value="gpt-4o">gpt-4o</option>';
-    }
-    function getEnvKeyName() { return document.getElementById('ag-provider').value==='anthropic'?'ANTHROPIC_API_KEY':'OPENAI_API_KEY'; }
-    function toggleEnvKey() {
-      const c = document.getElementById('ag-use-env').checked;
-      document.getElementById('env-key-display').style.display = c ? '' : 'none';
-      document.getElementById('manual-key-row').style.display = c ? 'none' : '';
-      if (c) { document.getElementById('env-key-name').textContent = getEnvKeyName(); loadEnvKey(); }
-    }
-    async function loadEnvKey() {
-      const nameEl=document.getElementById('env-key-name'), statusEl=document.getElementById('env-key-status'), resultEl=document.getElementById('env-load-result');
-      const varName = getEnvKeyName(); nameEl.textContent=varName; statusEl.textContent='loading...'; statusEl.style.color='#f39c12'; resultEl.textContent='';
-      try {
-        const res = await fetch('/.env'); if (!res.ok) throw new Error('HTTP '+res.status);
-        const text = await res.text(); let value='';
-        for (const line of text.split(/\r?\n/)) {
-          const t=line.trim(); if (!t||t.startsWith('#')) continue; const eq=t.indexOf('='); if (eq===-1) continue;
-          const k=t.slice(0,eq).trim(); let v=t.slice(eq+1).trim();
-          if ((v.startsWith('"')&&v.endsWith('"'))||(v.startsWith("'")&&v.endsWith("'"))) v=v.slice(1,-1);
-          if (k===varName) { value=v; break; }
-        }
-        if (!value) { statusEl.textContent='not found'; statusEl.style.color='#e74c3c'; resultEl.textContent=varName+' not in .env'; resultEl.className='test-result fail'; return; }
-        document.getElementById('ag-cloud-key').value = value;
-        statusEl.textContent=value.slice(0,7)+'...'+value.slice(-4); statusEl.style.color='#2ecc71';
-        resultEl.textContent='Loaded from .env'; resultEl.className='test-result ok';
-      } catch(e) { statusEl.textContent='error'; statusEl.style.color='#e74c3c'; resultEl.textContent=e.message; resultEl.className='test-result fail'; }
-    }
-    async function detectOllamaModels() {
-      const el=document.getElementById('ollama-detect-result'); el.textContent='Detecting...'; el.className='test-result checking';
-      try {
-        const models = await AIEngine.detectModels(document.getElementById('ag-ollama-url').value.trim());
-        if (!models.length) { el.textContent='No models found.'; el.className='test-result fail'; return; }
-        document.getElementById('ag-ollama-model').innerHTML = models.map(m=>`<option value="${m}">${m}</option>`).join('');
-        el.textContent=`Found ${models.length} model(s)`; el.className='test-result ok';
-      } catch(e) { el.textContent='Failed: '+e.message; el.className='test-result fail'; }
-    }
     function saveAgent() {
       const data = {
         name: document.getElementById('ag-name').value.trim(),
+        avatar: document.getElementById('ag-avatar').value,
         wallet: document.getElementById('ag-wallet').value.trim(),
         bio: document.getElementById('ag-bio').value.trim(),
         capabilities: Array.from(document.querySelectorAll('#ag-caps input:checked')).map(c=>c.value),
-        aiMode: document.querySelector('input[name="ag-ai-mode"]:checked').value,
-        cloudProvider: document.getElementById('ag-provider').value,
-        useEnvKey: document.getElementById('ag-use-env').checked,
-        cloudKey: document.getElementById('ag-cloud-key').value.trim(),
-        cloudModel: document.getElementById('ag-cloud-model').value,
-        ollamaUrl: document.getElementById('ag-ollama-url').value.trim(),
-        ollamaModel: document.getElementById('ag-ollama-model').value,
+        autoBid: document.getElementById('ag-auto-bid').checked,
+        autoBidAmount: parseFloat(document.getElementById('ag-auto-bid-amount').value) || 2,
+        autoBidMessage: document.getElementById('ag-auto-bid-message').value.trim() || 'I can complete this task efficiently.',
       };
       if (!data.name) { log('Agent name is required.', 'error'); return; }
       if (editingAgentIdx >= 0) {
@@ -846,13 +1431,45 @@
           capabilities:Array.from(document.querySelectorAll('#ag-caps input:checked')).map(c=>c.value) });
         const sid = r.agentId||r.id||wallet;
         if (editingAgentIdx >= 0) AppState.agents[editingAgentIdx].serverId = sid;
-        el.textContent='Registered! ID: '+sid; el.className='test-result ok';
-        log(`Agent registered on server: ${name}`, 'success');
+        log(`Agent registered on StacksTasker: ${name}`, 'success');
         saveAll();
+        // Switch UI to show registered state
+        document.getElementById('ag-register-row').style.display = 'none';
+        document.getElementById('ag-registered-info').style.display = '';
+        document.getElementById('ag-server-id').textContent = sid;
       } catch(e) { el.textContent='Error: '+e.message; el.className='test-result fail'; }
     }
 
     // ── Agent List Rendering ───────────────────────────────────
+    async function fetchAgentBalances() {
+      const net = AppState.stxNetwork === 'mainnet' ? 'mainnet' : 'testnet';
+      const base = `https://api.${net}.hiro.so/extended/v1/address`;
+      for (const a of AppState.agents) {
+        if (!a.wallet) continue;
+        // Fetch on-chain balance
+        try {
+          const r = await fetch(`${base}/${a.wallet}/stx`);
+          if (r.ok) {
+            const d = await r.json();
+            AppState._balances[a.wallet] = (Number(d.balance) / 1e6);
+          }
+        } catch(e) { /* skip */ }
+        // Fetch platform earnings from agent profile
+        const agentId = a.serverId || a.wallet;
+        if (agentId) {
+          try {
+            const profile = await API.getAgentProfile(agentId);
+            if (profile) {
+              AppState._platformEarnings = AppState._platformEarnings || {};
+              AppState._platformEarnings[a.wallet] = Number(profile.totalEarned) || 0;
+              a.profile = profile;
+            }
+          } catch(e) { /* skip — agent may not be registered */ }
+        }
+      }
+      renderAgentList();
+    }
+
     function renderAgentList() {
       const el = document.getElementById('agent-list');
       document.getElementById('agent-count').textContent = AppState.agents.length;
@@ -860,41 +1477,109 @@
       el.innerHTML = AppState.agents.map((a, i) => {
         const active = i === AppState.activeAgentIdx ? ' active' : '';
         const w = a.wallet ? (a.wallet.length > 14 ? a.wallet.slice(0,6)+'...'+a.wallet.slice(-4) : a.wallet) : 'no wallet';
+        const avaContent = a.avatar
+          ? `<img src="${escapeHtml(a.avatar)}" alt="${escapeHtml(a.name)}">`
+          : (a.name||'A')[0].toUpperCase();
         return `<div class="agent-list-item${active}" onclick="switchToAgent(${i})">
-          <div class="ava">${(a.name||'A')[0].toUpperCase()}</div>
-          <div class="info"><div class="name">${escapeHtml(a.name||'Unnamed')}</div><div class="wallet">${w}</div></div>
-          <button class="edit-btn" onclick="event.stopPropagation();openAgentSettings(${i})">Settings</button>
+          <div class="ava">${avaContent}</div>
+          <div class="info"><div class="name">${escapeHtml(a.name||'Unnamed')}</div><div class="wallet"><svg style="width:14px;height:14px;vertical-align:-2px;margin-right:3px;opacity:0.6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M16 14a2 2 0 100-4 2 2 0 000 4z"/><path d="M2 10h4"/></svg>${w}${a.wallet && AppState._balances[a.wallet] ? ' <span style="color:#2ecc71;font-weight:bold;" title="On-chain balance">' + fmtStx(AppState._balances[a.wallet]) + ' STX</span>' : ''}${''} <span class="net-tag ${AppState.stxNetwork}">${(AppState.stxNetwork||'testnet').toUpperCase()}</span></div></div>
+          <button class="edit-btn" onclick="event.stopPropagation();openAgentSettings(${i})" title="Settings" style="background:none;border:none;padding:0.3rem;cursor:pointer;color:#aaa;font-size:1.1rem;line-height:1;">&#9881;</button>
         </div>`;
       }).join('');
     }
 
     function switchToAgent(idx) {
       if (idx < 0 || idx >= AppState.agents.length) return;
-      // Save current console to outgoing agent
       AppState.activeAgentIdx = idx;
       saveAll();
       renderAgentList();
-      // Restore console for this agent
       const a = A();
-      document.getElementById('console').innerHTML = '';
-      if (a.consoleLogs.length) {
-        a.consoleLogs.forEach(l => {
-          const line = document.createElement('div');
-          line.className = 'console-line ' + l.type;
-          line.innerHTML = `<span class="timestamp">[${l.time}]</span>${escapeHtml(l.message)}`;
-          document.getElementById('console').appendChild(line);
-        });
-        document.getElementById('console').scrollTop = document.getElementById('console').scrollHeight;
-      } else {
-        log(`Switched to agent: ${a.name}`, 'info');
+      if (!AppState.globalConsole) {
+        renderConsole();
+        if (!a.consoleLogs.length) {
+          log(`Switched to agent: ${a.name}`, 'info');
+        }
       }
-      // Restore history
-      renderHistory();
-      // Clear task selection
+      loadAgentHistory();
+      loadAgentReviews();
       AppState.selectedTask = null;
       renderTaskDetail();
-      // Fetch tasks
       if (AppState.connected) fetchTasks();
+    }
+
+    // ── Right Panel Tabs ───────────────────────────────────────
+    function switchRightTab(tab) {
+      document.querySelectorAll('.right-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.right-tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.right-tab:nth-child(${tab==='history'?1:tab==='reviews'?2:3})`).classList.add('active');
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      if (tab === 'history') loadAgentHistory();
+      if (tab === 'reviews') loadAgentReviews();
+      if (tab === 'stats') loadPlatformStats();
+    }
+
+    async function loadAgentReviews() {
+      const el = document.getElementById('agent-reviews-list');
+      const a = A();
+      if (!a || !AppState.connected) { el.innerHTML = '<div class="empty-state">Select an agent to view reviews.</div>'; return; }
+      const agentId = a.serverId || a.wallet;
+      if (!agentId) { el.innerHTML = '<div class="empty-state">Agent not registered.</div>'; return; }
+      try {
+        // Collect all known server IDs for this agent (handles duplicate registrations)
+        const ids = new Set();
+        if (a.serverId) ids.add(a.serverId);
+        try {
+          const agents = await API.listAgents();
+          const agentsList = Array.isArray(agents) ? agents : (agents.agents || []);
+          const walletAddrs = new Set([a.wallet, a._walletTestnet, a._walletMainnet].filter(Boolean));
+          for (const ag of agentsList) {
+            if (walletAddrs.has(ag.walletAddress)) {
+              const sid = ag.agentId || ag.id || ag._id;
+              if (sid) ids.add(sid);
+            }
+          }
+        } catch(e) {}
+        // Fetch reviews for all known IDs and deduplicate
+        const allReviews = [];
+        const seenIds = new Set();
+        await Promise.all([...ids].map(async id => {
+          try {
+            const data = await API.getAgentReviews(id);
+            const reviews = Array.isArray(data) ? data : (data.reviews || []);
+            for (const r of reviews) {
+              const rid = r.id || r._id || (r.taskId + r.reviewerAddress);
+              if (!seenIds.has(rid)) { seenIds.add(rid); allReviews.push(r); }
+            }
+          } catch(e) {}
+        }));
+        allReviews.sort((a, b) => (b.createdAt || '') > (a.createdAt || '') ? 1 : -1);
+        if (!allReviews.length) { el.innerHTML = '<div class="empty-state">No reviews yet for this agent.</div>'; return; }
+        el.innerHTML = allReviews.map(r => {
+          const stars = '★'.repeat(r.rating || 0) + '☆'.repeat(5 - (r.rating || 0));
+          return `<div class="review-item">
+            <div class="review-stars">${stars}</div>
+            <div class="review-comment">${escapeHtml(r.comment || 'No comment')}</div>
+            <div class="review-meta">${r.reviewerAddress ? r.reviewerAddress.slice(0,8)+'...' : 'Anonymous'} ${r.createdAt ? '· ' + new Date(r.createdAt).toLocaleDateString() : ''}</div>
+          </div>`;
+        }).join('');
+      } catch(e) { el.innerHTML = `<div class="empty-state">Could not load reviews.</div>`; }
+    }
+
+    async function loadPlatformStats() {
+      const el = document.getElementById('platform-stats');
+      try {
+        const data = await API.stats();
+        el.innerHTML = `<div class="stats-bar" style="flex-wrap:wrap;gap:0.5rem;">
+          <div class="stat-block"><div class="stat-num">${data.totalTasks ?? data.tasks ?? '-'}</div><div class="stat-label">Tasks</div></div>
+          <div class="stat-block"><div class="stat-num">${data.totalAgents ?? data.agents ?? '-'}</div><div class="stat-label">Agents</div></div>
+          <div class="stat-block"><div class="stat-num">${data.completedTasks ?? '-'}</div><div class="stat-label">Completed</div></div>
+          <div class="stat-block"><div class="stat-num">${data.totalPayments ?? data.payments ?? '-'}</div><div class="stat-label">STX Paid</div></div>
+          <div class="stat-block"><div class="stat-num">${data.totalFees ?? data.fees ?? '-'}</div><div class="stat-label">Fees (1%)</div></div>
+        </div>
+        <div style="font-size:0.82rem;color:#888;text-align:center;margin-top:0.5rem;">
+          Powered by <a href="https://stackstasker.com/docs" target="_blank" style="color:#3498db;">StacksTasker</a> — decentralized task marketplace on Stacks
+        </div>`;
+      } catch(e) { el.innerHTML = `<div class="empty-state">Could not load platform stats.</div>`; }
     }
 
     // ── Connection ─────────────────────────────────────────────
@@ -904,24 +1589,224 @@
       try {
         await API.health(); dot.className='connection-dot connected';
         label.textContent=AppState.apiUrl.replace(/^https?:\/\//,''); AppState.connected=true;
+        log('Webhook connected to ' + AppState.apiUrl.replace(/^https?:\/\//,'') + ' [ ' + (AppState.stxNetwork||'testnet').toUpperCase() + ' ]', 'success');
+        // Now that we're connected, load history & reviews (they bail out if not connected)
+        if (A()) { loadAgentHistory(); loadAgentReviews(); }
       } catch(e) { dot.className='connection-dot'; label.textContent='Disconnected'; AppState.connected=false; }
     }
 
     // ── Task List ──────────────────────────────────────────────
+    function _syncLog() {}
+    function switchStxNetwork(net) {
+      AppState.stxNetwork = net;
+      const isMainnet = net === 'mainnet';
+      document.getElementById('pill-testnet').className = 'net-pill-opt' + (net==='testnet' ? ' active-testnet' : '');
+      document.getElementById('pill-mainnet').className = 'net-pill-opt' + (net==='mainnet' ? ' active-mainnet' : '');
+      // Immediately switch wallet addresses from stored values
+      AppState.agents.forEach(a => {
+        delete a._privateKey;
+        const target = isMainnet ? a._walletMainnet : a._walletTestnet;
+        if (target) a.wallet = target;
+      });
+      AppState._balances = {};
+      saveAll();
+      renderAgentList();
+      loadWalletKeys().then(() => { renderAgentList(); fetchAgentBalances(); });
+      log(`Switched to ${net.toUpperCase()}`, 'info');
+      if (AppState.connected) fetchTasks();
+    }
+    const _bidCooldown = new Map(); // agentId -> timestamp of last failure (30s cooldown)
+    const BID_COOLDOWN_MS = 30000;
+    async function processAutoBids(newOpenTasks) {
+      const now = Date.now();
+      for (const task of newOpenTasks) {
+        for (const agent of AppState.agents) {
+          if (!agent.autoBid) continue;
+          if (!agent.serverId) continue; // require serverId — wallet-only bids fail
+          // Skip if this agent is the poster (check all wallet variants)
+          const ownWallets = [agent.wallet, agent._walletTestnet, agent._walletMainnet].filter(Boolean);
+          if (ownWallets.includes(task.posterAddress)) continue;
+          const lastFail = _bidCooldown.get(agent.id);
+          if (lastFail && now - lastFail < BID_COOLDOWN_MS) continue;
+          const estSecs = Math.floor(Math.random() * 31) + 30; // 30–60 seconds
+          // Bid amount: vary around the task bounty (±20%), fallback to agent default
+          const bounty = Number(task.bounty || task.reward);
+          let bidAmount;
+          if (bounty > 0) {
+            const variance = bounty * 0.2; // ±20%
+            bidAmount = Math.round((bounty - variance + Math.random() * variance * 2) * 100) / 100;
+            if (bidAmount < 0.01) bidAmount = 0.01;
+          } else {
+            bidAmount = Number(agent.autoBidAmount) || 2;
+          }
+          const bidData = { agentId: agent.serverId, amount: bidAmount, message: agent.autoBidMessage || 'I can complete this task efficiently.', estimatedTime: `${estSecs} seconds` };
+          log(`🎯 Bidding: ${agent.name} → ${task.title} (${bidData.amount} ${getCurrency()})`, 'info');
+          try {
+            await API._fetch('/tasks/' + task.id + '/bid', { method: 'POST', body: JSON.stringify(bidData) }, agent.wallet);
+            // Update local bid count and status
+            const stateTask = AppState.tasks.find(t => t.id === task.id);
+            if (stateTask) { stateTask.bidCount = (stateTask.bidCount || 0) + 1; stateTask.status = 'bidding'; }
+            const msg = `✅ Auto-bid placed: ${bidData.amount} ${getCurrency()} on "${task.title}"`;
+            if (A() === agent) { log(msg, 'success'); }
+            else { logToAgent(agent, msg, 'success'); }
+            _bidCooldown.delete(agent.id); // clear on success
+            // Watch this task for payment notification
+            watchTaskForPayment(task.id, agent);
+          } catch(e) {
+            const msg = `Auto-bid failed (${agent.name}): ${e.message}`;
+            log(msg, 'error');
+            if (A() !== agent) { logToAgent(agent, msg, 'error'); }
+            _bidCooldown.set(agent.id, now);
+          }
+        }
+      }
+      renderTaskList();
+      if (AppState.selectedTask && newOpenTasks.some(t => t.id === AppState.selectedTask.id)) {
+        AppState.selectedTask = AppState.tasks.find(t => t.id === AppState.selectedTask.id);
+        renderTaskDetail();
+      }
+    }
+
+    // ── Watched Tasks — track bids through to payment ──────────
+    const _watchedTasks = new Map(); // taskId -> { agents: [{ serverId, name, wallet }], lastStatus }
+    let _watchTimer = null;
+    const WATCH_POLL_MS = 10000;
+
+    function watchTaskForPayment(taskId, agent) {
+      const entry = _watchedTasks.get(taskId);
+      if (entry) {
+        if (!entry.agents.find(a => a.serverId === agent.serverId)) {
+          entry.agents.push({ serverId: agent.serverId, name: agent.name, wallet: agent.wallet, id: agent.id });
+        }
+      } else {
+        _watchedTasks.set(taskId, {
+          agents: [{ serverId: agent.serverId, name: agent.name, wallet: agent.wallet, id: agent.id }],
+          lastStatus: 'bidding',
+        });
+        // Tell relay server to track this task for status changes
+        fetch('/api/watch-task', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ taskId, status: 'bidding' }) }).catch(() => {});
+      }
+      // Start polling if not already
+      if (!_watchTimer && _watchedTasks.size > 0) {
+        _watchTimer = setInterval(pollWatchedTasks, WATCH_POLL_MS);
+      }
+    }
+
+    function explorerTxUrl(txId) {
+      const chain = AppState.stxNetwork === 'mainnet' ? 'mainnet' : 'testnet';
+      return `https://explorer.hiro.so/txid/${encodeURIComponent(txId)}?chain=${chain}`;
+    }
+
+    async function pollWatchedTasks() {
+      if (_watchedTasks.size === 0) {
+        if (_watchTimer) { clearInterval(_watchTimer); _watchTimer = null; }
+        return;
+      }
+      for (const [taskId, entry] of _watchedTasks) {
+        try {
+          const task = await API.getTask(taskId);
+          if (!task) continue;
+          const status = task.status;
+          const title = task.title || taskId;
+          // Update local task state
+          const stateTask = AppState.tasks.find(t => t.id === taskId);
+          if (stateTask && stateTask.status !== status) {
+            Object.assign(stateTask, task);
+            renderTaskList();
+          }
+          if (status === entry.lastStatus) continue;
+          // Find the winning agent (our agent assigned to this task)
+          const winner = entry.agents.find(a => a.serverId === task.assignedAgent);
+          const agentObj = winner ? AppState.agents.find(a => a.serverId === winner.serverId) : null;
+          const agentName = winner ? winner.name : 'Agent';
+          // Helper: log to the correct agent's console
+          const agentLog = (msg, type) => {
+            if (A() && A().serverId === winner?.serverId) { log(msg, type); }
+            else if (agentObj) { logToAgent(agentObj, msg, type); }
+            else { log(msg, type); }
+          };
+          const agentLogHtml = (html, type) => {
+            if (A() && A().serverId === winner?.serverId) { logHtml(html, type); }
+            else if (agentObj) { logToAgent(agentObj, html, type, true); }
+            else { logHtml(html, type); }
+          };
+
+          // Log each status transition
+          if (status === 'assigned' && winner) {
+            agentLog(`Winning bid! ${agentName} assigned to "${title}"`, 'success');
+            // Fire-and-forget autonomous task completion
+            if (agentObj) { autoCompleteTask(task, agentObj).catch(e => agentLog('Auto-complete error: ' + e.message, 'error')); }
+          } else if (status === 'in-progress' || status === 'in_progress') {
+            if (winner) agentLog(`${agentName} started working on "${title}"`, 'info');
+          } else if (status === 'submitted') {
+            if (winner) agentLog(`${agentName} submitted result for "${title}"`, 'info');
+          } else if (status === 'approved' || status === 'completed') {
+            if (winner) {
+              agentLog(`Task approved: "${title}"`, 'success');
+              const payout = task.bounty ? fmtStx(Number(task.bounty) - Number(task.platformFee || 0)) : '?';
+              let html = `\u{1F4B0} Earned ${escapeHtml(payout)} ${escapeHtml(getCurrency())} for "${escapeHtml(title)}"!`;
+              if (task.paymentTxId && !task.paymentTxId.startsWith('sim_')) {
+                const url = explorerTxUrl(task.paymentTxId);
+                html += ` <a href="${url}" target="_blank" style="color:#bb86fc;text-decoration:underline;">View Tx ↗</a>`;
+              } else if (task.paymentTxId) {
+                html += ` <span style="color:#666;">(simulated: ${escapeHtml(task.paymentTxId)})</span>`;
+              }
+              agentLogHtml(html, 'payment');
+            }
+            fetchAgentBalances();
+            _watchedTasks.delete(taskId);
+            if (AppState.selectedTask && AppState.selectedTask.id === taskId) {
+              AppState.selectedTask = stateTask || task;
+              renderTaskDetail();
+            }
+            continue;
+          } else if (status === 'cancelled' || status === 'rejected') {
+            agentLog(`Task ${status}: "${title}"`, 'warning');
+            _watchedTasks.delete(taskId);
+            continue;
+          }
+          entry.lastStatus = status;
+        } catch(e) { /* skip failed polls */ }
+      }
+      if (_watchedTasks.size === 0 && _watchTimer) {
+        clearInterval(_watchTimer); _watchTimer = null;
+      }
+    }
+
+    async function _fetchMultiStatus(statusValue) {
+      const statuses = statusValue.includes('+') ? statusValue.split('+') : [statusValue];
+      const all = [];
+      await Promise.all(statuses.map(async s => {
+        const d = await API.listTasks(s);
+        const tasks = Array.isArray(d) ? d : (d.tasks || []);
+        all.push(...tasks);
+      }));
+      // Deduplicate by id
+      const seen = new Set();
+      return all.filter(t => { if (seen.has(t.id)) return false; seen.add(t.id); return true; });
+    }
     async function fetchTasks() {
       if (!AppState.connected) { log('Not connected.', 'warning'); return; }
       try {
-        const d = await API.listTasks('open');
-        AppState.tasks = Array.isArray(d)?d:(d.tasks||[]);
-        log(`Fetched ${AppState.tasks.length} open task(s).`, 'info'); renderTaskList();
+        const status = document.getElementById('task-status-filter').value;
+        AppState.tasks = await _fetchMultiStatus(status);
+
+        // Auto-bid: detect new open tasks
+        const newOpenTasks = AppState.tasks.filter(t => t.status === 'open' && !AppState._seenTaskIds.has(t.id));
+        AppState.tasks.forEach(t => AppState._seenTaskIds.add(t.id));
+        if (AppState._autoBidReady && newOpenTasks.length > 0) {
+          await processAutoBids(newOpenTasks);
+        }
+        AppState._autoBidReady = true;
+
+        _syncLog(AppState.tasks.length); renderTaskList();
       } catch(e) { log('Fetch tasks failed: '+e.message, 'error'); }
     }
     async function fetchTasksWithStatus() {
-      const status = document.getElementById('task-status-filter').value;
       if (!AppState.connected) { log('Not connected.', 'warning'); return; }
       try {
-        const d = await API.listTasks(status==='all'?'':status);
-        AppState.tasks = Array.isArray(d)?d:(d.tasks||[]); log(`Fetched ${AppState.tasks.length} task(s) [${status}].`, 'info'); renderTaskList();
+        const status = document.getElementById('task-status-filter').value;
+        AppState.tasks = await _fetchMultiStatus(status); _syncLog(AppState.tasks.length); renderTaskList();
       } catch(e) { log('Fetch failed: '+e.message, 'error'); }
     }
     function renderTaskList() {
@@ -932,35 +1817,370 @@
       if (!tasks.length) { list.innerHTML='<div class="empty-state">No tasks found.</div>'; return; }
       list.innerHTML = tasks.map(t => {
         const cat=(t.category||'other').toLowerCase(), sel=AppState.selectedTask&&AppState.selectedTask.id===t.id?' selected':'';
+        const status = (t.status||'open').toLowerCase();
+        const net = (t.network||AppState.stxNetwork||'testnet').toLowerCase();
         return `<div class="task-item${sel}" onclick="selectTask('${t.id}')">
-          <div class="task-item-title">${escapeHtml(t.title||'Untitled')}</div>
-          <div class="task-item-meta"><span class="task-badge ${cat}">${cat}</span><span class="task-bounty">${t.bounty??t.reward??'?'} ${getCurrency()}</span><span class="task-bids">${t.bidCount??t.bids?.length??0} bids</span></div>
+          <div class="task-item-title">${escapeHtml((t.title||'Untitled').length>40?(t.title.slice(0,40)+'…'):t.title||'Untitled')} <span style="color:#888;font-size:0.85em;">[${String(t.id).slice(0,8)}]</span></div>
+          <div class="task-item-meta">
+            <span class="task-meta-left"><span class="net-tag ${net}">${net}</span><span class="task-status-label ${status}">${status}</span><span class="task-badge ${cat}">${cat}</span></span>
+            <span class="task-meta-right"><span class="task-bounty">${t.bounty!=null?fmtStx(t.bounty):(t.reward!=null?fmtStx(t.reward):'?')} ${getCurrency()}</span><span class="task-bids">${t.bidCount??t.bids?.length??0} bids</span></span>
+          </div>
         </div>`;
       }).join('');
     }
     async function selectTask(id) {
       const task = AppState.tasks.find(t=>t.id===id||t.id===Number(id)); if (!task) return;
       try { AppState.selectedTask = await API.getTask(id); } catch(e) { AppState.selectedTask = task; }
-      renderTaskList(); renderTaskDetail(); log(`Selected: ${AppState.selectedTask.title}`, 'info');
+      renderTaskList(); renderTaskDetail();
+      loadTaskBids(id);
     }
     function renderTaskDetail() {
       const t=AppState.selectedTask, p=document.getElementById('no-task-prompt'), v=document.getElementById('task-detail-view');
       if (!t) { p.style.display=''; v.style.display='none'; return; }
       p.style.display='none'; v.style.display='';
-      document.getElementById('detail-title').textContent=t.title||'Untitled';
+      document.getElementById('detail-title').textContent=(t.title||'Untitled')+' ['+String(t.id).slice(0,8)+']';
       document.getElementById('detail-description').textContent=t.description||'No description.';
+      const net = (t.network||AppState.stxNetwork||'testnet').toLowerCase();
+      const cat = (t.category||'other').toLowerCase();
+      const st = (t.status||'open').toLowerCase();
+      document.getElementById('detail-pills').innerHTML=`<span class="net-tag ${net}">${net}</span><span class="task-status-label ${st}">${st}</span><span class="task-badge ${cat}">${cat}</span>`;
       document.getElementById('detail-category').textContent=t.category||'-';
-      document.getElementById('detail-bounty').textContent=(t.bounty??t.reward??'?')+' '+getCurrency();
+      document.getElementById('detail-bounty').textContent=(t.bounty!=null?fmtStx(t.bounty):(t.reward!=null?fmtStx(t.reward):'?'))+' '+getCurrency();
+      document.getElementById('detail-status').textContent=(t.status||'open');
       document.getElementById('detail-bids').textContent=t.bidCount??t.bids?.length??0;
       document.getElementById('result-preview').style.display='none'; document.getElementById('result-preview').value='';
-      document.getElementById('execute-btn').style.display=''; document.getElementById('bid-btn').style.display='';
-      document.getElementById('submit-btn').style.display='none';
-      document.getElementById('execute-btn').disabled=false; document.getElementById('execute-btn').textContent='Accept & Execute';
+
+      const status = (t.status||'open').toLowerCase();
+      const a = A();
+      const isMyTask = a && (t.posterAddress === a.wallet);
+      const isAssignedToMe = a && (t.assignedAgent === (a.serverId||a.wallet) || t.agentId === (a.serverId||a.wallet));
+
+      // Show/hide buttons based on task status and ownership
+      document.getElementById('execute-btn').style.display = (status==='open'||status==='assigned') && !isMyTask ? '' : 'none';
+      document.getElementById('execute-task-btn').style.display = (status==='assigned'||status==='in-progress'||status==='in_progress') && isAssignedToMe ? '' : 'none';
+      document.getElementById('bid-btn').style.display = (status==='open'||status==='bidding') && !isMyTask ? '' : 'none';
+      document.getElementById('approve-btn').style.display = status==='submitted' && isMyTask ? '' : 'none';
+      document.getElementById('reject-btn').style.display = status==='submitted' && isMyTask ? '' : 'none';
+      document.getElementById('review-btn').style.display = (status==='completed'||status==='closed') && isMyTask ? '' : 'none';
+      document.getElementById('submit-btn').style.display = 'none';
+      document.getElementById('cancel-task-btn').style.display = status==='open' && isMyTask ? '' : 'none';
+      document.getElementById('msg-toggle-btn').style.display = (status!=='open') ? '' : 'none';
+
+      document.getElementById('execute-btn').disabled=false;
+      document.getElementById('execute-btn').textContent='Accept & Execute';
+
+      // Show bids section
+      document.getElementById('bids-section').style.display = (status==='open'||status==='bidding') ? '' : 'none';
+      // Hide messages by default
+      document.getElementById('messages-section').style.display = 'none';
+
+      // Show tx links and live site link
+      const txEl = document.getElementById('detail-tx-links');
+      const taskUrl = `${AppState.apiUrl.replace(/\/+$/, '')}/tasks/${t.id}`;
+      let txHtml = `<div style="font-size:0.82rem;display:flex;flex-direction:column;gap:0.35rem;">`;
+      txHtml += `<div><a href="${taskUrl}" target="_blank" style="color:#3498db;text-decoration:underline;">View on StacksTasker ↗</a> <code style="color:#666;font-size:0.75rem;">${String(t.id).slice(0,8)}</code></div>`;
+      // Override sim_ paymentTxId with real on-chain txId if available from relay
+      AppState._realPaymentTxIds = AppState._realPaymentTxIds || {};
+      if (AppState._realPaymentTxIds[t.id] && (!t.paymentTxId || t.paymentTxId.startsWith('sim_'))) {
+        t.paymentTxId = AppState._realPaymentTxIds[t.id];
+      }
+      // If still sim_, ask relay for the real txId (async, re-render if found)
+      if (t.paymentTxId && t.paymentTxId.startsWith('sim_') && !AppState._realTxChecked?.[t.id]) {
+        AppState._realTxChecked = AppState._realTxChecked || {};
+        AppState._realTxChecked[t.id] = true;
+        fetch(`/api/payment-tx/${t.id}`).then(r => r.json()).then(d => {
+          if (d.txId) {
+            AppState._realPaymentTxIds[t.id] = d.txId;
+            t.paymentTxId = d.txId;
+            renderTaskDetail(); // re-render with real txId
+          }
+        }).catch(() => {});
+      }
+      if ((status === 'completed' || status === 'approved') && (t.paymentTxId || t.txId || t.escrowTxId)) {
+        const chain = (t.network || AppState.stxNetwork || 'testnet').toLowerCase();
+        const isRealTx = (id) => id && !id.startsWith('sim_');
+        const allTxIds = [t.paymentTxId, t.txId, t.escrowTxId].filter(Boolean);
+        const hasReal = allTxIds.some(isRealTx);
+        const links = [];
+        if (t.paymentTxId) links.push({ label: 'Payment', txid: t.paymentTxId, real: isRealTx(t.paymentTxId) });
+        if (t.txId && t.txId !== t.paymentTxId) links.push({ label: 'Task Tx', txid: t.txId, real: isRealTx(t.txId) });
+        if (t.escrowTxId) links.push({ label: 'Escrow', txid: t.escrowTxId, real: isRealTx(t.escrowTxId) });
+        txHtml += `<div style="background:rgba(46,204,113,0.08);border:1px solid rgba(46,204,113,0.15);border-radius:6px;padding:0.4rem 0.6rem;">
+          <span style="color:#2ecc71;margin-right:0.3rem;">&#9745;</span> ${hasReal ? 'On-chain' : 'Simulated'}:
+          ${links.map(l => l.real
+            ? `<a href="https://explorer.hiro.so/txid/${encodeURIComponent(l.txid)}?chain=${chain}" target="_blank" style="color:#bb86fc;text-decoration:underline;margin-left:0.4rem;">${escapeHtml(l.label)} ↗</a> <code style="color:#888;font-size:0.75rem;">${l.txid.slice(0,12)}...</code>`
+            : `<span style="margin-left:0.4rem;color:#888;">${escapeHtml(l.label)}</span> <code style="color:#666;font-size:0.75rem;">${escapeHtml(l.txid)}</code>`
+          ).join('')}
+        </div>`;
+      }
+      txHtml += `</div>`;
+      txEl.style.display = '';
+      txEl.innerHTML = txHtml;
     }
+
+    // ── Task Bids ──────────────────────────────────────────────
+    async function loadTaskBids(taskId) {
+      const section = document.getElementById('bids-section');
+      const list = document.getElementById('bids-list');
+      try {
+        const data = await API.listBids(taskId);
+        const bids = Array.isArray(data) ? data : (data.bids || []);
+        AppState.selectedTaskBids = bids;
+        if (!bids.length) { list.innerHTML = '<div style="color:#888;font-size:0.85rem;margin-bottom:0.75rem;">No bids yet.</div>'; return; }
+        const a = A();
+        const isMyTask = a && AppState.selectedTask && AppState.selectedTask.posterAddress === a.wallet;
+        list.innerHTML = bids.map(b => {
+          const acceptBtn = isMyTask ? `<button class="bid-accept-btn" onclick="event.stopPropagation();acceptBid('${taskId}','${b.id}')">Accept</button>` : '';
+          return `<div class="bid-item">
+            <div class="bid-info">
+              <div>${escapeHtml(b.agentId||'Agent').slice(0,12)}... ${b.message?'— '+escapeHtml(b.message.slice(0,50)):''}</div>
+              ${b.estimatedTime && b.estimatedTime !== 'Not specified' ? `<div style="font-size:0.78rem;color:#888;">Est: ${escapeHtml(b.estimatedTime)}</div>` : ''}
+            </div>
+            <div style="display:flex;align-items:center;gap:0.5rem;">
+              <span class="bid-amount">${b.amount} ${getCurrency()}</span>
+              ${acceptBtn}
+            </div>
+          </div>`;
+        }).join('');
+      } catch(e) { list.innerHTML = '<div style="color:#888;font-size:0.85rem;">Could not load bids.</div>'; }
+    }
+
+    async function acceptBid(taskId, bidId) {
+      log(`Accepting bid ${bidId}...`, 'info');
+      try {
+        await API.acceptBid(taskId, bidId);
+        log('🏆 Bid accepted! Task assigned.', 'success');
+        // Refresh task
+        try { AppState.selectedTask = await API.getTask(taskId); } catch(e) {}
+        renderTaskDetail();
+        fetchTasks();
+      } catch(e) { log('Accept bid failed: ' + e.message, 'error'); }
+    }
+
+    // ── Task Messages ──────────────────────────────────────────
+    function toggleMessages() {
+      const section = document.getElementById('messages-section');
+      if (section.style.display === 'none') {
+        section.style.display = '';
+        loadTaskMessages();
+      } else {
+        section.style.display = 'none';
+      }
+    }
+
+    async function loadTaskMessages() {
+      const task = AppState.selectedTask; if (!task) return;
+      const list = document.getElementById('messages-list');
+      try {
+        const data = await API.getMessages(task.id);
+        const msgs = Array.isArray(data) ? data : (data.messages || []);
+        AppState.selectedTaskMessages = msgs;
+        if (!msgs.length) { list.innerHTML = '<div style="color:#888;font-size:0.85rem;">No messages yet.</div>'; return; }
+        list.innerHTML = msgs.map(m => {
+          const sender = (m.senderAddress||'Unknown').slice(0,10)+'...';
+          const time = m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : '';
+          return `<div class="msg-item">
+            <div style="display:flex;justify-content:space-between;"><span class="msg-sender">${sender}</span><span class="msg-time">${time}</span></div>
+            <div class="msg-body">${escapeHtml(m.body||'')}</div>
+          </div>`;
+        }).join('');
+      } catch(e) { list.innerHTML = '<div style="color:#888;font-size:0.85rem;">Could not load messages.</div>'; }
+    }
+
+    async function sendTaskMessage() {
+      const task = AppState.selectedTask; if (!task) return;
+      const input = document.getElementById('msg-input');
+      const body = input.value.trim();
+      if (!body) return;
+      input.value = '';
+      log(`Sending message on task "${task.title}"...`, 'info');
+      try {
+        await API.postMessage(task.id, body);
+        log('Message sent.', 'success');
+        loadTaskMessages();
+      } catch(e) { log('Message failed: ' + e.message, 'error'); }
+    }
+
+    // ── Task Actions ───────────────────────────────────────────
+    async function approveTask() {
+      const task = AppState.selectedTask; if (!task) return;
+      log(`Approving task "${task.title}" — payment will be released (1% platform fee)...`, 'info');
+      try {
+        await API.approveTask(task.id);
+        log('Task approved! Payment released.', 'success');
+        try { AppState.selectedTask = await API.getTask(task.id); } catch(e) {}
+        renderTaskDetail(); fetchTasks();
+      } catch(e) { log('Approve failed: ' + e.message, 'error'); }
+    }
+
+    async function rejectTask() {
+      const task = AppState.selectedTask; if (!task) return;
+      const reason = prompt('Reason for rejection (optional):') || '';
+      log(`Rejecting task "${task.title}"...`, 'info');
+      try {
+        await API.rejectTask(task.id, reason);
+        log('Task rejected. Agent can re-submit.', 'warning');
+        try { AppState.selectedTask = await API.getTask(task.id); } catch(e) {}
+        renderTaskDetail(); fetchTasks();
+      } catch(e) { log('Reject failed: ' + e.message, 'error'); }
+    }
+
+    async function cancelTask() {
+      const task = AppState.selectedTask; if (!task) return;
+      if (!confirm(`Cancel task "${task.title}"?`)) return;
+      log(`Cancelling task "${task.title}"...`, 'info');
+      try {
+        await API.cancelTask(task.id);
+        log('Task cancelled.', 'warning');
+        AppState.selectedTask = null;
+        renderTaskDetail(); fetchTasks();
+      } catch(e) { log('Cancel failed: ' + e.message, 'error'); }
+    }
+
     function toggleAutoRefresh() {
       AppState.autoRefresh = document.getElementById('auto-refresh-toggle').checked;
-      if (AppState.autoRefresh) { if (AppState.pollTimer) clearInterval(AppState.pollTimer); AppState.pollTimer=setInterval(()=>fetchTasks(),10000); }
-      else { if (AppState.pollTimer) clearInterval(AppState.pollTimer); AppState.pollTimer=null; }
+      if (AppState.autoRefresh) {
+        connectWebSocket();
+        if (!AppState._wsConnected) {
+          if (AppState.pollTimer) clearInterval(AppState.pollTimer);
+          AppState.pollTimer = setInterval(() => fetchTasks(), 15000);
+        }
+      } else {
+        if (AppState.pollTimer) { clearInterval(AppState.pollTimer); AppState.pollTimer = null; }
+        if (AppState._ws) { AppState._ws.close(); AppState._ws = null; }
+      }
+    }
+
+    function connectWebSocket() {
+      if (AppState._ws && AppState._ws.readyState <= 1) return;
+      try {
+        const ws = new WebSocket('ws://localhost:3402');
+        AppState._ws = ws;
+        ws.onopen = () => {
+          AppState._wsConnected = true;
+          // Disable polling — relay handles detection
+          if (AppState.pollTimer) { clearInterval(AppState.pollTimer); AppState.pollTimer = null; }
+          const dot = document.getElementById('conn-dot');
+          if (dot) dot.className = 'connection-dot connected';
+          log('Relay connected — instant mode', 'success');
+        };
+        ws.onmessage = async (evt) => {
+          try {
+            const data = JSON.parse(evt.data);
+            if (data.type === 'reload') { location.href = location.pathname + '?v=' + Date.now(); return; }
+            if (data.type === 'payment_tx' && data.taskId && data.txId) {
+              AppState._realPaymentTxIds = AppState._realPaymentTxIds || {};
+              AppState._realPaymentTxIds[data.taskId] = data.txId;
+              // Update task object if loaded
+              const t = AppState.tasks.find(x => x.id === data.taskId);
+              if (t) { t.paymentTxId = data.txId; }
+              if (AppState.selectedTask && AppState.selectedTask.id === data.taskId) renderTaskDetail();
+              return;
+            }
+            if (data.type === 'state_request') {
+              ws.send(JSON.stringify({
+                type: 'state_response',
+                autoBidReady: AppState._autoBidReady,
+                wsConnected: AppState._wsConnected,
+                connected: AppState.connected,
+                autoRefresh: AppState.autoRefresh,
+                agents: AppState.agents.map(a => ({
+                  name: a.name, id: a.id, wallet: a.wallet, serverId: a.serverId,
+                  autoBid: a.autoBid, autoBidAmount: a.autoBidAmount,
+                  _walletTestnet: a._walletTestnet, _walletMainnet: a._walletMainnet,
+                })),
+                cooldowns: [..._bidCooldown.entries()].map(([k,v]) => ({ id: k, since: Date.now() - v })),
+                seenTaskCount: AppState._seenTaskIds.size,
+                _walletDebug: window._walletLoadDebug,
+              }));
+              return;
+            }
+            if (data.type === 'poll_watched') { pollWatchedTasks(); return; }
+            if (data.type === 'task_updates' && Array.isArray(data.tasks)) {
+              for (const t of data.tasks) {
+                // Update local task state
+                const existing = AppState.tasks.find(x => x.id === t.id);
+                if (existing) Object.assign(existing, t);
+                else AppState.tasks.unshift(t);
+                // Check if any of our agents are assigned
+                const status = t.status;
+                for (const agent of AppState.agents) {
+                  const aid = agent.serverId || agent.wallet;
+                  if (!aid) continue;
+                  if (t.assignedAgent === aid || t.agentId === aid) {
+                    if (status === 'assigned') {
+                      const msg = `🏆 Winning bid! Assigned to "${t.title}"`;
+                      if (A() === agent) { log(msg, 'success'); } else { logToAgent(agent, msg, 'success'); }
+                      // Auto-complete if not already watched
+                      if (!_watchedTasks.has(t.id)) { watchTaskForPayment(t.id, agent); }
+                      autoCompleteTask(t, agent).catch(e => log('Auto-complete error: ' + e.message, 'error'));
+                    } else if (status === 'submitted') {
+                      const msg = `📤 Result submitted for "${t.title}" — awaiting approval`;
+                      if (A() === agent) { log(msg, 'info'); } else { logToAgent(agent, msg, 'info'); }
+                    } else if (status === 'completed' || status === 'approved') {
+                      const msg = `🎉 Task approved: "${t.title}"`;
+                      if (A() === agent) { log(msg, 'success'); } else { logToAgent(agent, msg, 'success'); }
+                      // Show payment details
+                      const payout = t.bounty ? fmtStx(Number(t.bounty) - Number(t.platformFee || 0)) : '?';
+                      // Check for real txId from relay
+                      const realTx = AppState._realPaymentTxIds?.[t.id];
+                      const txId = realTx || (t.paymentTxId && !t.paymentTxId.startsWith('sim_') ? t.paymentTxId : null);
+                      let html = `🤑💰 Earned ${escapeHtml(payout)} ${escapeHtml(getCurrency())} for "${escapeHtml(t.title)}"!`;
+                      if (txId) {
+                        const url = explorerTxUrl(txId);
+                        html += ` <a href="${url}" target="_blank" style="color:#bb86fc;text-decoration:underline;">View Tx ↗</a>`;
+                      } else if (t.paymentTxId) {
+                        html += ` <span style="color:#666;">(simulated: ${escapeHtml(t.paymentTxId)})</span>`;
+                      }
+                      if (A() === agent) { logHtml(html, 'payment'); } else { logToAgent(agent, html, 'payment', true); }
+                      fetchAgentBalances();
+                    }
+                  }
+                }
+                // Check if any of our agents is the POSTER — auto-review completer
+                if (status === 'completed' || status === 'approved') {
+                  const posterAddr = t.posterAddress || t.poster;
+                  if (posterAddr) {
+                    for (const agent of AppState.agents) {
+                      if (agent.wallet === posterAddr || agent._walletTestnet === posterAddr || agent._walletMainnet === posterAddr) {
+                        autoReviewCompleter(t, agent).catch(e => {});
+                      }
+                    }
+                  }
+                }
+              }
+              renderTaskList();
+              if (AppState.selectedTask && data.tasks.find(t => t.id === AppState.selectedTask.id)) {
+                AppState.selectedTask = AppState.tasks.find(t => t.id === AppState.selectedTask.id);
+                renderTaskDetail();
+              }
+            }
+            if (data.type === 'new_tasks' && Array.isArray(data.tasks)) {
+              // Merge new tasks into state
+              for (const t of data.tasks) {
+                if (!AppState.tasks.find(x => x.id === t.id)) AppState.tasks.unshift(t);
+                AppState._seenTaskIds.add(t.id);
+              }
+              renderTaskList();
+              log(`📋 ${data.tasks.length} new task${data.tasks.length > 1 ? 's' : ''} via relay`, 'info');
+              // Auto-bid on new tasks
+              const bidAgents = AppState.agents.filter(a => a.autoBid && (a.wallet || a.serverId));
+              log(`Auto-bid agents: ${bidAgents.length} (${bidAgents.map(a=>a.name).join(', ')||'none'})`, 'info');
+              await processAutoBids(data.tasks);
+            }
+          } catch(e) { log('Relay error: ' + e.message, 'error'); }
+        };
+        ws.onclose = () => {
+          AppState._wsConnected = false;
+          // Fall back to polling
+          if (AppState.autoRefresh && !AppState.pollTimer) {
+            AppState.pollTimer = setInterval(() => fetchTasks(), 15000);
+          }
+          // Retry connection after 5s
+          setTimeout(() => { if (AppState.autoRefresh) connectWebSocket(); }, 5000);
+        };
+        ws.onerror = () => { ws.close(); };
+      } catch(e) { /* WebSocket not available */ }
     }
 
     // ── Core Workflow ──────────────────────────────────────────
@@ -969,48 +2189,268 @@
       AppState.executing=true;
       const eb=document.getElementById('execute-btn'), bb=document.getElementById('bid-btn'), pv=document.getElementById('result-preview'), sb=document.getElementById('submit-btn');
       eb.disabled=true; eb.textContent='Running...'; bb.style.display='none';
+      const agentId = a.serverId || a.wallet;
       const hist = { taskId:task.id, title:task.title, category:task.category, bounty:task.bounty??task.reward, status:'accepted', timestamp:new Date().toISOString() };
       try {
-        log('Accepting task...','info');
-        try { await API.acceptTask(task.id); log('Accepted.','success'); } catch(e) { log('Accept: '+e.message+' (continuing)','warning'); }
+        const st = (task.status||'').toLowerCase();
+        if (st === 'open' || st === 'bidding') {
+          log('Accepting task...','info');
+          try { await API.acceptTask(task.id, agentId); log('Accepted.','success'); } catch(e) { log('Accept: '+e.message+' (continuing)','warning'); }
+        }
         hist.status='in-progress';
-        log('Starting...','info');
-        try { await API.startTask(task.id); log('Started.','success'); } catch(e) { log('Start: '+e.message+' (continuing)','warning'); }
-        const aiLabel = a.aiMode==='cloud'?a.cloudProvider+'/'+a.cloudModel:'Ollama/'+a.ollamaModel;
-        log(`Generating with ${aiLabel}...`,'info');
+        if (st !== 'in-progress' && st !== 'in_progress') {
+          log('🚀 Starting task...','info');
+          try { await API.startTask(task.id, agentId); log('Started.','success'); } catch(e) { log('Start: '+e.message+' (continuing)','warning'); }
+        }
+        const aiLabel = AppState.aiApiKey ? AppState.aiProvider+'/'+AppState.aiModel : 'Ollama/'+AppState.ollamaModel;
+        log(`🧠 Generating with ${aiLabel}...`,'info');
         const result = await AIEngine.complete(task);
-        log('AI done ('+result.length+' chars).','success');
+        log('✨ AI done ('+result.length+' chars).','success');
         pv.style.display=''; pv.value=result; sb.style.display=''; eb.style.display='none'; hist.status='submitted';
-        log('Submitting...','info');
-        try { await API.submitResult(task.id, result); log('Submitted!','success'); hist.status='completed'; }
+        log('📤 Submitting result to StacksTasker...','info');
+        try { await API.submitResult(task.id, result, agentId); log('📤 Submitted! Awaiting poster approval.','success'); hist.status='completed'; }
         catch(e) { log('Submit: '+e.message,'warning'); log('Use Submit Result button to retry.','info'); sb.style.display=''; }
       } catch(e) { log('Failed: '+e.message,'error'); hist.status='failed'; }
       a.taskHistory.unshift(hist); saveAll(); renderHistory();
       AppState.executing=false; eb.disabled=false; eb.textContent='Accept & Execute';
       setTimeout(()=>fetchTasks(),1500);
     }
+
+    async function executeInProgressTask() {
+      const task = AppState.selectedTask, a = A();
+      if (!task || !a || AppState.executing) return;
+      AppState.executing = true;
+      const btn = document.getElementById('execute-task-btn');
+      btn.disabled = true; btn.textContent = 'Executing...';
+      const agentId = a.serverId || a.wallet;
+      // Use correct network wallet for the task
+      const isMainnet = (task.network === 'mainnet');
+      const walletAddr = (isMainnet ? a._walletMainnet : a._walletTestnet) || a.wallet;
+      try {
+        // Start task if still assigned
+        const st = (task.status || '').toLowerCase();
+        if (st === 'assigned') {
+          log('🚀 Starting task...', 'info');
+          try { await API._fetch(`/tasks/${task.id}/start`, { method:'POST', body:JSON.stringify({ agentId }) }, walletAddr); log('Started.', 'success'); } catch(e) { /* already started is fine */ }
+        }
+        // Fetch existing messages for context
+        let msgContext = '';
+        try {
+          const data = await API.getMessages(task.id);
+          const msgs = data.messages || data || [];
+          if (msgs.length) {
+            msgContext = '\n\nExisting messages:\n' + msgs.map(m => `${m.senderName || m.senderAddress || 'User'}: ${m.body}`).join('\n');
+          }
+        } catch(e) { /* no messages */ }
+        // Build prompt with task context
+        const aiLabel = AppState.aiApiKey ? AppState.aiProvider + '/' + AppState.aiModel : 'Ollama/' + AppState.ollamaModel;
+        log(`🧠 Generating with ${aiLabel}...`, 'info');
+        const enrichedTask = { ...task, description: (task.description || '') + msgContext };
+        const result = await AIEngine.complete(enrichedTask);
+        log('✨ AI done (' + result.length + ' chars).', 'success');
+        // Post result as message
+        log('Posting result to task messages...', 'info');
+        try { await API._fetch(`/tasks/${task.id}/messages`, { method:'POST', body:JSON.stringify({ senderAddress: walletAddr, body: result }) }, walletAddr); log('Message posted.', 'success'); } catch(e) { /* message post is optional */ }
+        // Submit result
+        log('📤 Submitting result...', 'info');
+        await API._fetch(`/tasks/${task.id}/submit`, { method:'POST', body:JSON.stringify({ result, agentId }) }, walletAddr);
+        log('Submitted! Awaiting poster approval.', 'success');
+        // Watch for approval/payment status
+        watchTaskForPayment(task.id, a);
+        // Also tell relay to track this task
+        try { await fetch('/api/watch-task', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ taskId: task.id, status: 'submitted' }) }); } catch(e) {}
+        // Show in preview
+        const pv = document.getElementById('result-preview');
+        pv.style.display = ''; pv.value = result;
+      } catch(e) { log('Execute failed: ' + e.message, 'error'); }
+      AppState.executing = false; btn.disabled = false; btn.textContent = 'Execute Task';
+      setTimeout(() => fetchTasks(), 1500);
+    }
+
+    // ── Autonomous task completion (headless — no UI manipulation) ──
+    const _executingTasks = new Set(); // prevent duplicate execution
+    async function autoCompleteTask(task, agentObj) {
+      // Dedup: only one execution per task
+      if (_executingTasks.has(task.id)) return;
+      _executingTasks.add(task.id);
+      const agentId = agentObj.serverId || agentObj.wallet;
+      const agentName = agentObj.name || 'Agent';
+      // Use the correct network wallet (match the task's network)
+      const isMainnet = (task.network === 'mainnet');
+      const walletAddr = (isMainnet ? agentObj._walletMainnet : agentObj._walletTestnet) || agentObj.wallet;
+      const title = task.title || task.id;
+      const aLog = (msg, type) => {
+        if (A() && A().serverId === agentObj.serverId) { log(msg, type); }
+        else { logToAgent(agentObj, msg, type); }
+      };
+      const hist = { taskId:task.id, title, category:task.category, bounty:task.bounty??task.reward, status:'accepted', timestamp:new Date().toISOString() };
+      try {
+        const st = (task.status||'').toLowerCase();
+        if (st !== 'in-progress' && st !== 'in_progress') {
+          aLog('🚀 Starting task...', 'info');
+          try { await API._fetch(`/tasks/${task.id}/start`, { method:'POST', body:JSON.stringify({ agentId }) }, walletAddr); }
+          catch(e) { /* already in-progress is fine */ }
+        }
+        hist.status = 'in-progress';
+        const aiLabel = AppState.aiApiKey ? AppState.aiProvider+'/'+AppState.aiModel : 'Ollama/'+AppState.ollamaModel;
+        aLog(`🧠 Generating AI response (${aiLabel})...`, 'info');
+        const result = await AIEngine.complete(task);
+        aLog(`✨ AI done (${result.length} chars) — posting result...`, 'success');
+        // Post as task message
+        try { await API._fetch(`/tasks/${task.id}/messages`, { method:'POST', body:JSON.stringify({ senderAddress: walletAddr, body: result }) }, walletAddr); }
+        catch(e) { /* message post is optional */ }
+        // Submit result
+        await API._fetch(`/tasks/${task.id}/submit`, { method:'POST', body:JSON.stringify({ result, agentId }) }, walletAddr);
+        hist.status = 'submitted';
+        aLog('📤 Result submitted — awaiting poster approval', 'success');
+        // Watch for approval/payment
+        watchTaskForPayment(task.id, agentObj);
+        try { await fetch('/api/watch-task', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ taskId: task.id, status: 'submitted' }) }); } catch(e) {}
+      } catch(e) {
+        aLog('Auto-complete failed: ' + e.message, 'error');
+        hist.status = 'failed';
+      }
+      _executingTasks.delete(task.id);
+      agentObj.taskHistory.unshift(hist); saveAll(); renderHistory();
+      setTimeout(()=>fetchTasks(), 1500);
+    }
+
+    // Auto-review after task is approved/completed
+    // API only supports: poster reviews assigned agent (not vice versa)
+    // So: when our agent POSTED the task, we review the completer
+    async function autoReviewCompleter(task, posterAgent) {
+      if (!task || !posterAgent) return;
+      const key = task.id + ':' + posterAgent.wallet;
+      if (AppState._reviewedTasks.has(key)) return;
+      AppState._reviewedTasks.add(key);
+      // Use the wallet address that matches the posterAddress on the task
+      const posterAddr = task.posterAddress || task.poster;
+      const walletAddr = posterAddr && (posterAgent.wallet === posterAddr || posterAgent._walletTestnet === posterAddr || posterAgent._walletMainnet === posterAddr)
+        ? posterAddr : posterAgent.wallet;
+      const aLog = (msg, type) => {
+        if (A() && A().serverId === posterAgent.serverId) { log(msg, type); }
+        else { logToAgent(posterAgent, msg, type); }
+      };
+      // Get the assigned agent ID to review
+      let assignedAgentId = task.assignedAgent;
+      if (!assignedAgentId) {
+        try {
+          const full = await API.getTask(task.id);
+          assignedAgentId = full.assignedAgent;
+        } catch(e) {}
+      }
+      if (!assignedAgentId) { aLog('Auto-review skipped — no assigned agent', 'warning'); return; }
+      try {
+        await API._fetch(`/agents/${encodeURIComponent(assignedAgentId)}/review`, {
+          method: 'POST',
+          body: JSON.stringify({
+            taskId: task.id,
+            rating: 5,
+            comment: 'Excellent work — fast, accurate, and thorough.',
+            reviewerAddress: walletAddr,
+          }),
+        }, walletAddr);
+        aLog(`⭐ Auto-review: 5 stars for agent ${assignedAgentId}`, 'success');
+      } catch(e) {
+        if (e.message && e.message.includes('Already reviewed')) {
+          aLog('Auto-review: already reviewed this task', 'info');
+        } else {
+          aLog(`Auto-review failed: ${e.message}`, 'warning');
+        }
+      }
+    }
+
     async function submitResult() {
       const task=AppState.selectedTask, pv=document.getElementById('result-preview'), a=A();
       if (!task||!pv.value.trim()||!a) return;
-      log('Submitting...','info');
-      try { await API.submitResult(task.id,pv.value.trim()); log('Submitted!','success');
+      const agentId = a.serverId || a.wallet;
+      log('Submitting result...','info');
+      try { await API.submitResult(task.id,pv.value.trim(), agentId); log('Submitted! Awaiting poster approval.','success');
         const h=a.taskHistory.find(e=>e.taskId===task.id); if(h) h.status='completed'; saveAll(); renderHistory();
       } catch(e) { log('Submit failed: '+e.message,'error'); }
     }
-    async function placeBidOnTask() {
-      const task=AppState.selectedTask; if (!task) return;
-      const amount = prompt('Bid amount ('+getCurrency()+'):'); if (!amount||isNaN(Number(amount))) return;
-      log(`Bidding ${amount} ${getCurrency()}...`,'info');
-      try { await API.placeBid(task.id,Number(amount)); log('Bid placed!','success'); } catch(e) { log('Bid failed: '+e.message,'error'); }
-    }
 
     // ── History ────────────────────────────────────────────────
+    async function loadAgentHistory() {
+      const a = A();
+      if (!a || !AppState.connected) { renderHistory(); return; }
+      const agentId = a.serverId || a.wallet;
+      if (!agentId) { renderHistory(); return; }
+      const list = document.getElementById('history-list');
+      list.innerHTML = '<div class="empty-state" style="color:#888;">Loading history...</div>';
+      try {
+        // Collect all known server IDs for this agent's wallet (handles duplicate registrations)
+        const knownIds = new Set();
+        if (a.serverId) knownIds.add(a.serverId);
+        if (a.wallet) knownIds.add(a.wallet);
+        const walletAddrs = new Set([a.wallet, a._walletTestnet, a._walletMainnet].filter(Boolean));
+        try {
+          const agents = await API.listAgents();
+          const agentsList = Array.isArray(agents) ? agents : (agents.agents || []);
+          for (const ag of agentsList) {
+            if (walletAddrs.has(ag.walletAddress)) {
+              const sid = ag.agentId || ag.id || ag._id;
+              if (sid) knownIds.add(sid);
+            }
+          }
+        } catch(e) { /* skip agent lookup */ }
+        // Fetch agent profile for stats
+        try {
+          const profile = await API.getAgentProfile(agentId);
+          a.profile = profile;
+        } catch(e) { /* profile may not exist yet */ }
+        // Fetch tasks across statuses where this agent is involved
+        const statuses = ['bidding','assigned','in-progress','submitted','completed'];
+        const allTasks = [];
+        await Promise.all(statuses.map(async s => {
+          try {
+            const d = await API.listTasks(s);
+            const tasks = Array.isArray(d) ? d : (d.tasks || []);
+            allTasks.push(...tasks);
+          } catch(e) { /* skip */ }
+        }));
+        // Filter to tasks involving this agent (check all known IDs + wallet variants)
+        const myTasks = allTasks.filter(t =>
+          knownIds.has(t.assignedAgent) || knownIds.has(t.agentId) ||
+          walletAddrs.has(t.posterAddress)
+        );
+        // Merge with local history (server tasks take priority, dedup by taskId)
+        const seen = new Set();
+        const merged = [];
+        for (const t of myTasks) {
+          if (seen.has(t.id || t._id)) continue;
+          seen.add(t.id || t._id);
+          merged.push({
+            taskId: t.id || t._id,
+            title: t.title || 'Task',
+            category: t.category,
+            bounty: t.bounty ?? t.reward,
+            status: t.status || 'unknown',
+            timestamp: t.updatedAt || t.createdAt,
+            isCreator: walletAddrs.has(t.posterAddress),
+          });
+        }
+        for (const h of (a.taskHistory || [])) {
+          if (h.taskId && seen.has(h.taskId)) continue;
+          if (h.taskId) seen.add(h.taskId);
+          merged.push(h);
+        }
+        // Sort by timestamp desc
+        merged.sort((a, b) => (b.timestamp || '') > (a.timestamp || '') ? 1 : -1);
+        a._mergedHistory = merged;
+      } catch(e) {
+        a._mergedHistory = null;
+      }
+      renderHistory();
+    }
+
     function renderHistory() {
       const list=document.getElementById('history-list'), countEl=document.getElementById('history-count');
-      const a=A(), hist=a?a.taskHistory:[];
+      const a=A();
+      const hist = (a?._mergedHistory || (a ? a.taskHistory : []) || []).filter(h => h.status !== 'failed');
       countEl.textContent=hist.length+' task'+(hist.length!==1?'s':'');
       const completed=hist.filter(h=>h.status==='completed').length;
-      const earned=hist.filter(h=>h.status==='completed').reduce((s,h)=>s+(Number(h.bounty)||0),0);
+      const earned=hist.filter(h=>h.status==='completed'&&!h.isCreator).reduce((s,h)=>s+(Number(h.bounty)||0),0);
       const cur=getCurrency();
       document.getElementById('stat-earned-label').textContent=cur+' Earned';
       document.getElementById('stat-completed').textContent=completed;
@@ -1019,8 +2459,22 @@
       if (!hist.length) { list.innerHTML='<div class="empty-state">No task history yet.</div>'; return; }
       list.innerHTML = hist.map(h => {
         const sc=(h.status||'completed').replace(/\s/g,'-'), time=h.timestamp?new Date(h.timestamp).toLocaleString():'';
-        return `<div class="history-item"><div class="history-item-header"><span class="history-item-title">${escapeHtml(h.title||'Task')}</span><span class="status-badge ${sc}">${h.status||'-'}</span></div><div class="history-item-meta"><span class="history-bounty">${h.bounty??'?'} ${cur}</span><span>${time}</span></div></div>`;
+        const role = h.isCreator ? '<span style="font-size:0.72rem;color:#3498db;margin-left:0.3rem;">poster</span>' : '';
+        const clickAttr = h.taskId ? ` onclick="selectHistoryTask('${escapeHtml(h.taskId)}')" style="cursor:pointer;"` : '';
+        return `<div class="history-item"${clickAttr}><div class="history-item-header"><span class="history-item-title">${escapeHtml(h.title||'Task')}${role}</span><span class="status-badge ${sc}">${h.status||'-'}</span></div><div class="history-item-meta"><span class="history-bounty">${h.bounty!=null?fmtStx(h.bounty):'?'} ${cur}</span><span>${time}</span></div></div>`;
       }).join('');
+    }
+
+    async function selectHistoryTask(taskId) {
+      try {
+        const task = await API.getTask(taskId);
+        if (!task) return;
+        // Ensure it's in AppState.tasks so selectTask/renderTaskList can find it
+        if (!AppState.tasks.find(t => t.id === task.id)) AppState.tasks.unshift(task);
+        AppState.selectedTask = task;
+        renderTaskList(); renderTaskDetail();
+        loadTaskBids(taskId);
+      } catch(e) { log('Could not load task: ' + e.message, 'error'); }
     }
 
     // ── Wallet Generation ──────────────────────────────────────
@@ -1035,58 +2489,208 @@
       else if (net==='solana') { addr=base58Encode(await sha256(pk)); }
       else { addr='0x'+bytesToHex((await sha256(pk)).slice(0,20)); }
       document.getElementById('ag-wallet').value=addr;
-      // Save keypair to wallets/ folder as a downloaded JSON file
-      const keypair = { network: net, address: addr, privateKey: bytesToHex(pk), created: new Date().toISOString() };
+      const agentName = document.getElementById('ag-name').value.trim();
+      const keypair = { label: agentName || 'Stacks Agent', network: net === 'stacks' ? 'stacks-testnet' : net, address: addr, privateKey: bytesToHex(pk), created: new Date().toISOString() };
       const filename = `wallet-${addr.slice(0,10)}.json`;
       const blob = new Blob([JSON.stringify(keypair, null, 2)], { type: 'application/json' });
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
       a.download = `wallets/${filename}`; a.click(); URL.revokeObjectURL(a.href);
       document.getElementById('wallet-secret-area').style.display='';
       const res=document.getElementById('wallet-gen-result');
-      res.textContent=`Generated ${(NET[net]||NET.stacks).label} wallet. Keypair downloaded as wallets/${filename} — save it to the wallets/ folder.`;
+      res.textContent=`Generated ${(NET[net]||NET.stacks).label} wallet. Save the downloaded file to wallets/${filename}`;
       res.className='test-result ok';
       log(`Generated wallet: ${addr.slice(0,12)}... — keypair file downloaded`,'success');
     }
 
-    // ── Load wallet keys from wallets/ folder ─────────────────
-    async function loadWalletKeys() {
-      for (const agent of AppState.agents) {
-        if (!agent.wallet) continue;
-        const prefix = agent.wallet.slice(0, 10);
-        try {
-          const res = await fetch(`/wallets/wallet-${prefix}.json`);
-          if (!res.ok) continue;
-          const data = await res.json();
-          if (data.privateKey && data.address === agent.wallet) {
-            agent._privateKey = data.privateKey;
-          }
-        } catch(e) { /* wallet file not found, skip */ }
-      }
+    // ── Stacks address conversion (via relay server) ───────────
+    async function convertStxAddress(address, toMainnet) {
+      const net = toMainnet ? 'mainnet' : 'testnet';
+      const res = await fetch(`/api/convert-address?address=${address}&network=${net}`);
+      if (!res.ok) throw new Error('Address conversion failed');
+      const data = await res.json();
+      return data.address;
     }
 
-    // ── .env reload on startup ─────────────────────────────────
-    async function reloadEnvKeys() {
+    // ── Load wallet keys from wallets/ folder ─────────────────
+    window._walletLoadDebug = [];
+    async function loadWalletKeys() {
+      const isMainnet = AppState.stxNetwork === 'mainnet';
+      window._walletLoadDebug = ['start'];
+
+      // Load wallet data from server API (includes pre-computed testnet+mainnet addresses)
+      let walletEntries = []; // { filename, label, address, testnetAddress, mainnetAddress, network }
+      let walletFilenames = [];
       try {
-        const res = await fetch('/.env'); if (!res.ok) return;
-        const text = await res.text(); const vars = {};
-        for (const line of text.split(/\r?\n/)) {
-          const t=line.trim(); if (!t||t.startsWith('#')) continue; const eq=t.indexOf('='); if (eq===-1) continue;
-          const k=t.slice(0,eq).trim(); let v=t.slice(eq+1).trim();
-          if ((v.startsWith('"')&&v.endsWith('"'))||(v.startsWith("'")&&v.endsWith("'"))) v=v.slice(1,-1);
-          vars[k]=v;
+        window._walletLoadDebug.push('fetching');
+        const res = await fetch('/api/wallet-files');
+        window._walletLoadDebug.push('status:' + res.status);
+        if (res.ok) {
+          const d = await res.json();
+          walletEntries = d.wallets || [];
+          walletFilenames = d.files || [];
+          window._walletLoadDebug.push('wallets:' + walletEntries.length + ',files:' + walletFilenames.length);
+        } else { window._walletLoadDebug.push('notok:' + res.status); }
+      } catch(e) { window._walletLoadDebug.push('err:' + e.message); }
+
+      // Fallback: try directory listing (works with Python http.server)
+      if (walletFilenames.length === 0) {
+        try {
+          const res = await fetch('/wallets/');
+          if (res.ok) {
+            const html = await res.text();
+            const matches = html.match(/href="(wallet-[^"]+\.json)"/g) || [];
+            walletFilenames = matches.map(m => m.match(/href="([^"]+)"/)[1]);
+          }
+        } catch(e) {}
+      }
+
+      // If we have pre-computed wallet entries from API, use them directly
+      if (walletEntries.length > 0) {
+        for (const w of walletEntries) {
+          // Find matching agent
+          let agent = AppState.agents.find(a => a.name && w.label && a.name === w.label);
+          if (!agent) agent = AppState.agents.find(a => a.wallet && (a.wallet === w.address || a.wallet === w.testnetAddress || a.wallet === w.mainnetAddress));
+          if (!agent) agent = AppState.agents.find(a => a._walletTestnet && a._walletTestnet === w.testnetAddress);
+          if (agent) {
+            // Load private key from the actual file
+            try {
+              const res = await fetch(`/wallets/${w.filename}`);
+              if (res.ok) { const data = await res.json(); if (data.privateKey) agent._privateKey = data.privateKey; }
+            } catch(e) {}
+            agent._walletTestnet = w.testnetAddress;
+            agent._walletMainnet = w.mainnetAddress;
+            agent.wallet = isMainnet ? agent._walletMainnet : agent._walletTestnet;
+            window._walletLoadDebug.push('set:' + agent.name.slice(0,10) + ':mn=' + (agent._walletMainnet||'null').slice(0,10));
+            saveAll();
+          } else {
+            window._walletLoadDebug.push('nomatch:' + w.label);
+          }
         }
-        AppState.agents.forEach(a => {
-          if (!a.useEnvKey) return;
-          const varName = a.cloudProvider==='anthropic'?'ANTHROPIC_API_KEY':'OPENAI_API_KEY';
-          if (vars[varName]) a.cloudKey = vars[varName];
-        });
-      } catch(e) { /* silent */ }
+      } else {
+        // Legacy path: load individual wallet files
+        for (const filename of walletFilenames) {
+          try {
+            const res = await fetch(`/wallets/${filename}`);
+            if (!res.ok) continue;
+            const data = await res.json();
+            if (!data.address || !data.privateKey) continue;
+            let agent = AppState.agents.find(a => a.name && data.label && a.name === data.label);
+            if (!agent) agent = AppState.agents.find(a => a.wallet && a.wallet === data.address);
+            if (agent) {
+              agent._privateKey = data.privateKey;
+              agent._walletTestnet = agent._walletTestnet || (data.address.startsWith('ST') ? data.address : undefined);
+              agent._walletMainnet = agent._walletMainnet || (data.address.startsWith('SP') ? data.address : undefined);
+              try {
+                if (data.address.startsWith('ST') && !agent._walletMainnet) agent._walletMainnet = await convertStxAddress(data.address, true);
+                if (data.address.startsWith('SP') && !agent._walletTestnet) agent._walletTestnet = await convertStxAddress(data.address, false);
+              } catch(e) {}
+              agent.wallet = isMainnet ? (agent._walletMainnet || data.address) : (agent._walletTestnet || data.address);
+              saveAll();
+            }
+          } catch(e) {}
+        }
+      }
+
+      // Fallback: for agents still without keys, try loading by wallet prefix
+      for (const agent of AppState.agents) {
+        if (!agent.wallet || agent._privateKey) continue;
+        const prefixes = [...new Set([agent.wallet.slice(0, 10), agent._walletTestnet?.slice(0, 10), agent._walletMainnet?.slice(0, 10)].filter(Boolean))];
+        for (const tryPrefix of prefixes) {
+          try {
+            const res = await fetch(`/wallets/wallet-${tryPrefix}.json`);
+            if (!res.ok) continue;
+            const data = await res.json();
+            if (data.privateKey) { agent._privateKey = data.privateKey; break; }
+          } catch(e) {}
+        }
+      }
+      window._walletLoadDebug.push('done');
     }
 
     // ── Init ───────────────────────────────────────────────────
     loadState();
-    document.getElementById('network-selector').value = AppState.network||'stacks';
-    reloadEnvKeys();
+    // Seed or patch default agents
+    const creatorAgent = AppState.agents.find(a => a.name === 'TASK CREATOR AGENT' || a.name === 'LOBSTER - TASK CREATOR AGENT');
+    if (!creatorAgent) {
+      AppState.agents.push(makeAgent({
+        name: 'LOBSTER - TASK CREATOR AGENT',
+        avatar: 'avatars/InventiveLobster_TP-5Y46JB5Q_avatar.png',
+        bio: 'Posts tasks to the StacksTasker marketplace, sets bounties, reviews submissions, and leaves reviews.',
+        capabilities: ['coding','api-integration','other'],
+      }));
+    } else {
+      if (!creatorAgent.avatar) creatorAgent.avatar = 'avatars/InventiveLobster_TP-5Y46JB5Q_avatar.png';
+      if (creatorAgent.name === 'TASK CREATOR AGENT') creatorAgent.name = 'LOBSTER - TASK CREATOR AGENT';
+    }
+    const completerAgent = AppState.agents.find(a => a.name === 'TASK COMPLETER AGENT' || a.name === 'MONKEY - TASK COMPLETER AGENT');
+    if (!completerAgent) {
+      AppState.agents.push(makeAgent({
+        name: 'MONKEY - TASK COMPLETER AGENT',
+        avatar: 'avatars/Chico_TP-K9RGXCGY_avatar.png',
+        bio: 'Bids on and completes tasks from the StacksTasker marketplace using AI.',
+        capabilities: ['coding','data-pipeline','api-integration','other'],
+      }));
+    } else {
+      if (!completerAgent.avatar) completerAgent.avatar = 'avatars/Chico_TP-K9RGXCGY_avatar.png';
+      if (completerAgent.name === 'TASK COMPLETER AGENT') completerAgent.name = 'MONKEY - TASK COMPLETER AGENT';
+    }
+    if (!AppState.agents.some(a => a.name === 'OCTOPUS - TASK COMPLETER AGENT')) {
+      AppState.agents.push(makeAgent({
+        name: 'OCTOPUS - TASK COMPLETER AGENT',
+        avatar: 'avatars/CuriousOctopus_TP-E1LRXU6Q_avatar.png',
+        bio: 'Bids on and completes tasks from the StacksTasker marketplace using AI. Multi-armed multitasker.',
+        capabilities: ['coding','data-pipeline','api-integration','other'],
+      }));
+    }
+    // Auto-register agents on StacksTasker if they don't have a serverId
+    async function syncAgentServerIds() {
+      for (const a of AppState.agents) {
+        if (a.serverId || !a.wallet) continue;
+        try {
+          const r = await API.registerAgent({
+            name: a.name, walletAddress: a.wallet,
+            bio: a.bio || a.name,
+            capabilities: a.capabilities || ['coding','other'],
+          });
+          const sid = r.agentId || r.id || r.walletAddress;
+          if (sid) { a.serverId = sid; saveAll(); _bidCooldown.delete(a.id); log(`Registered ${a.name} (${sid})`, 'success'); }
+        } catch(e) {
+          // Already registered — try to look up by wallet
+          if (e.message.includes('already registered') || e.message.includes('already exists')) {
+            const match = e.message.match(/"(?:id|agentId)"\s*:\s*"([^"]+)"/);
+            if (match) { a.serverId = match[1]; saveAll(); _bidCooldown.delete(a.id); }
+          }
+          if (!a.serverId) {
+            // Fallback: look up agent list and match by wallet
+            try {
+              const agents = await API.listAgents();
+              const list = Array.isArray(agents) ? agents : (agents.agents || []);
+              const found = list.find(x => x.walletAddress === a.wallet);
+              if (found) {
+                a.serverId = found.agentId || found.id || found._id;
+                saveAll(); _bidCooldown.delete(a.id);
+                log(`Found ${a.name} on server (${a.serverId})`, 'success');
+              }
+            } catch(_) { /* ignore lookup failure */ }
+          }
+        }
+      }
+    }
+    setTimeout(async () => {
+      if (AppState.connected) {
+        await syncAgentServerIds();
+        // Ensure initial task list is seeded and auto-bid is ready
+        if (!AppState._autoBidReady) {
+          await fetchTasks();
+        }
+      }
+    }, 2500);
+    if (AppState.activeAgentIdx < 0 && AppState.agents.length > 0) AppState.activeAgentIdx = 0;
+    saveAll();
+    // Restore pill toggle state
+    const _net = AppState.stxNetwork || 'testnet';
+    document.getElementById('pill-testnet').className = 'net-pill-opt' + (_net==='testnet' ? ' active-testnet' : '');
+    document.getElementById('pill-mainnet').className = 'net-pill-opt' + (_net==='mainnet' ? ' active-mainnet' : '');
     loadWalletKeys();
     checkConnection();
     renderAgentList();
@@ -1095,6 +2699,74 @@
     document.getElementById('auto-refresh-toggle').checked = AppState.autoRefresh;
     if (AppState.autoRefresh) toggleAutoRefresh();
     setTimeout(()=>{ if (AppState.connected && A()) fetchTasks(); }, 1200);
+    setTimeout(fetchAgentBalances, 2000);
+    setInterval(fetchAgentBalances, 60000);
+    // Poll our agents' active tasks for status changes (catches approvals/completions relay may miss)
+    const _agentTaskStatus = new Map(); // taskId -> lastStatus
+    async function pollAgentTasks() {
+      if (!AppState.connected) return;
+      for (const agent of AppState.agents) {
+        const aid = agent.serverId || agent.wallet;
+        if (!aid) continue;
+        for (const status of ['submitted', 'assigned', 'in-progress']) {
+          try {
+            const d = await API.listTasks(status);
+            const tasks = Array.isArray(d) ? d : (d.tasks || []);
+            for (const t of tasks) {
+              if (t.assignedAgent !== aid && t.agentId !== aid) continue;
+              const prev = _agentTaskStatus.get(t.id);
+              if (!prev) { _agentTaskStatus.set(t.id, t.status); continue; }
+              if (prev === t.status) continue;
+              _agentTaskStatus.set(t.id, t.status);
+              // Status changed — handle it
+              const aLog = (msg, type) => { if (A() === agent) { log(msg, type); } else { logToAgent(agent, msg, type); } };
+              const aLogHtml = (html, type) => { if (A() === agent) { logHtml(html, type); } else { logToAgent(agent, html, type, true); } };
+              if (t.status === 'completed' || t.status === 'approved') {
+                aLog(`🎉 Task approved: "${t.title}"`, 'success');
+                const payout = t.bounty ? fmtStx(Number(t.bounty) - Number(t.platformFee || 0)) : '?';
+                const realTx = AppState._realPaymentTxIds?.[t.id];
+                const txId = realTx || (t.paymentTxId && !t.paymentTxId.startsWith('sim_') ? t.paymentTxId : null);
+                let html = `🤑💰 Earned ${escapeHtml(payout)} ${escapeHtml(getCurrency())} for "${escapeHtml(t.title)}"!`;
+                if (txId) { html += ` <a href="${explorerTxUrl(txId)}" target="_blank" style="color:#bb86fc;text-decoration:underline;">View Tx ↗</a>`; }
+                else if (t.paymentTxId) { html += ` <span style="color:#666;">(simulated: ${escapeHtml(t.paymentTxId)})</span>`; }
+                aLogHtml(html, 'payment');
+                fetchAgentBalances();
+                // If our agent posted this task, auto-review the completer
+                const posterAddr = t.posterAddress || t.poster;
+                if (posterAddr) {
+                  for (const pa of AppState.agents) {
+                    if (pa.wallet === posterAddr || pa._walletTestnet === posterAddr || pa._walletMainnet === posterAddr) {
+                      autoReviewCompleter(t, pa).catch(e => {});
+                    }
+                  }
+                }
+                // Update local task state
+                const st = AppState.tasks.find(x => x.id === t.id);
+                if (st) Object.assign(st, t);
+                renderTaskList();
+                if (AppState.selectedTask?.id === t.id) { AppState.selectedTask = st || t; renderTaskDetail(); }
+              }
+            }
+          } catch(e) { /* skip */ }
+        }
+      }
+    }
+    setTimeout(pollAgentTasks, 5000);
+    setInterval(pollAgentTasks, 15000);
+    // Auto-load AI API key from server environment if not configured
+    if (!AppState.aiApiKey) {
+      fetch('/api/env-keys').then(r=>r.json()).then(keys => {
+        const providerMap = { anthropic: keys.anthropic, openai: keys.openai, openrouter: keys.openrouter };
+        const key = providerMap[AppState.aiProvider] || keys.anthropic || keys.openai || keys.openrouter || '';
+        if (key) {
+          AppState.aiApiKey = key;
+          if (!providerMap[AppState.aiProvider] && keys.anthropic) AppState.aiProvider = 'anthropic';
+          else if (!providerMap[AppState.aiProvider] && keys.openai) AppState.aiProvider = 'openai';
+          saveAll();
+          log(`AI key loaded from server env (${AppState.aiProvider})`, 'success');
+        }
+      }).catch(()=>{});
+    }
   </script>
 </body>
 </html>

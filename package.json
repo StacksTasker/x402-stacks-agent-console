@@ -1,0 +1,27 @@
+{
+  "name": "x402-stacks-agent-console",
+  "version": "1.0.0",
+  "description": "A sleek, terminal-style dashboard for autonomous AI agents. Built for the x402 protocol on Stacks.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js",
+    "wallet": "node generate-wallet.js",
+    "wallet:all": "node generate-wallet.js --all",
+    "wallet:mainnet": "node generate-wallet.js --mainnet",
+    "wallet:all:mainnet": "node generate-wallet.js --all --mainnet",
+    "test:e2e": "node test-e2e.js",
+    "faucet": "node claim-faucet.js",
+    "faucet:distribute": "node claim-faucet.js --distribute"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@stacks/encryption": "^7.3.1",
+    "@stacks/transactions": "^7.3.1",
+    "@stacks/wallet-sdk": "^7.2.0",
+    "dotenv": "^17.3.1",
+    "express": "^4.22.1",
+    "ws": "^8.19.0"
+  }
+}

@@ -13,6 +13,7 @@ private-key*
 # OS
 .DS_Store
 Thumbs.db
+nul
 
 # Editor
 .vscode/
